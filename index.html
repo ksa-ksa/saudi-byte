@@ -573,13 +573,22 @@ drawChips();drawApps();drawThemes();drawMovies();updG();document.querySelectorAl
  function editItem(id){const x=readItems().find(v=>v.id===id);if(!x)return;$a("sb-edit-id").value=x.id;$a("sb-name").value=x.n;$a("sb-category").value=x.c;$a("sb-summary").value=x.s;$a("sb-url").value=x.u;$a("sb-download").value=x.dl||"";$a("sb-icon").value=x.i||"🧩";$a("sb-status").value=x.status;currentImageUrl=x.img||null;if(currentImageUrl)showImagePreview(currentImageUrl);else clearImagePreview();$a("sb-editor-title").textContent="تعديل عنصر المحتوى";document.querySelector('[data-tab="content"]').click();$a("sb-name").focus();}
  async function deleteItem(id){if(!confirm("تأكيد حذف هذا العنصر؟"))return;try{await requireAdmin();const {error}=await window.sbSupabase.from("apps").delete().eq("id",id);if(error)throw error;writeItems(readItems().filter(x=>x.id!==id));refresh();if(typeof drawApps==="function")drawApps();$a("sb-form-status").textContent="تم حذف العنصر من قاعدة البيانات.";}catch(err){$a("sb-form-status").textContent="تعذر الحذف: "+(err.message||"خطأ غير معروف");}}
  async function openAdmin(){
-  const {data:{session}} = await window.sbSupabase.auth.getSession();
-  if(!session){$a("sb-auth-gate").style.display="flex";$a("sb-auth-email").focus();return;}
-  const {data:isAdmin,error} = await window.sbSupabase.rpc("is_admin");
-  if(error||!isAdmin){await window.sbSupabase.auth.signOut();$a("sb-auth-status").textContent="هذا الحساب ليس ضمن المدراء."; $a("sb-auth-gate").style.display="flex";return;}
-  $a("sb-admin").classList.add("open");$a("sb-admin").setAttribute("aria-hidden","false");refresh();history.replaceState(null,"",location.pathname+location.search+"#admin");
-  try{await syncAdminContent();refresh();$a("sb-form-status").textContent="تمت مزامنة المحتوى مع Supabase.";}catch(err){$a("sb-form-status").textContent="تعذرت المزامنة: "+(err.message||"تحقق من اتصال قاعدة البيانات");}
-}
+  const panel=$a("sb-admin"),gate=$a("sb-auth-gate"),status=$a("sb-auth-status");
+  panel.classList.add("open");panel.setAttribute("aria-hidden","false");
+  gate.style.display="flex";status.style.color="#ddd";status.textContent="جارٍ التحقق من جلسة الدخول...";
+  try{
+   if(!window.sbSupabase)throw new Error("تعذر الاتصال بخدمة تسجيل الدخول. حدّث الصفحة وحاول مجددًا.");
+   const {data:{session},error:sessionError}=await window.sbSupabase.auth.getSession();
+   if(sessionError)throw sessionError;
+   if(!session){status.textContent="سجّل الدخول بحساب المدير للمتابعة."; $a("sb-auth-email").focus();return;}
+   const {data:isAdmin,error}=await window.sbSupabase.rpc("is_admin");
+   if(error)throw error;
+   if(!isAdmin){await window.sbSupabase.auth.signOut();status.textContent="هذا الحساب ليس ضمن المدراء.";return;}
+   gate.style.display="none";refresh();history.replaceState(null,"",location.pathname+location.search+"#admin");
+   try{await syncAdminContent();refresh();$a("sb-form-status").textContent="تمت مزامنة المحتوى مع Supabase.";}
+   catch(err){$a("sb-form-status").textContent="تعذرت المزامنة: "+(err.message||"تحقق من اتصال قاعدة البيانات");}
+  }catch(err){status.textContent="تعذر فتح الإدارة: "+(err.message||"تحقق من الاتصال ثم أعد المحاولة.");}
+ }
  function closeAdmin(){ $a("sb-admin").classList.remove("open");$a("sb-admin").setAttribute("aria-hidden","true");history.replaceState(null,"",location.pathname+location.search);}
  $a("sb-admin-launch").addEventListener("click",openAdmin);$a("sb-close").addEventListener("click",closeAdmin);
  $a("sb-auth-cancel").addEventListener("click",()=>$a("sb-auth-gate").style.display="none");
