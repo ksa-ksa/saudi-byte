@@ -168,7 +168,7 @@ window.sbSupabase = window.supabase.createClient(
     <button class="sb-btn" id="sb-close">العودة للموقع ✕</button>
    </div>
   </header>
-  <div class="sb-notice"><b>وضع الإدارة المحمي:</b> تسجيل الدخول وإدارة البرامج تتم عبر Supabase. تتم مزامنة عناصر المحتوى بين الأجهزة، بينما الإحصائيات لا تزال محلية في هذه المرحلة.</div>
+  <div class="sb-notice"><b>وضع الإدارة المحمي:</b> تسجيل الدخول وإدارة البرامج والإحصائيات تتم عبر Supabase. يتم تسجيل الزيارات ومشاهدات التفاصيل ونقرات الروابط سحابياً.</div>
   <nav class="sb-tabs">
    <button class="sb-tab active" data-tab="overview">نظرة عامة</button>
    <button class="sb-tab" data-tab="content">إدارة المحتوى</button>
@@ -177,14 +177,14 @@ window.sbSupabase = window.supabase.createClient(
   </nav>
   <div class="sb-page active" id="sb-page-overview">
    <div class="sb-metrics">
-    <div class="sb-metric"><small>عناصر دليل البرامج</small><strong id="sb-count-apps">0</strong></div>
-    <div class="sb-metric"><small>عناصر مضافة من الإدارة</small><strong id="sb-count-custom">0</strong></div>
-    <div class="sb-metric"><small>مشاهدات مسجلة محلياً</small><strong id="sb-count-views">0</strong></div>
-    <div class="sb-metric"><small>نقرات تحميل مسجلة محلياً</small><strong id="sb-count-downs">0</strong></div>
+    <div class="sb-metric"><small>زيارات الموقع السحابية</small><strong id="sb-count-apps">0</strong></div>
+    <div class="sb-metric"><small>مشاهدات التفاصيل</small><strong id="sb-count-custom">0</strong></div>
+    <div class="sb-metric"><small>نقرات الروابط</small><strong id="sb-count-views">0</strong></div>
+    <div class="sb-metric"><small>إجمالي الأحداث</small><strong id="sb-count-downs">0</strong></div>
    </div>
    <div class="sb-grid2">
     <div class="sb-panel"><h3>آخر نشاط مسجل</h3><div id="sb-recent" class="sb-muted">لا توجد بيانات بعد.</div></div>
-    <div class="sb-panel"><h3>حالة الأنظمة</h3><p class="sb-muted">المحتوى الأساسي: مضمّن داخل HTML</p><p class="sb-muted">المحتوى الإضافي: Supabase ومزامنة سحابية</p><p class="sb-muted">الإحصائيات: محلية وغير مركزية حالياً</p><p class="sb-muted">المستخدمون والصلاحيات: Supabase Auth مفعّل</p></div>
+    <div class="sb-panel"><h3>حالة الأنظمة</h3><p class="sb-muted">المحتوى الأساسي: مضمّن داخل HTML</p><p class="sb-muted">المحتوى الإضافي: Supabase ومزامنة سحابية</p><p class="sb-muted">الإحصائيات: Supabase وأحداث سحابية مشتركة</p><p class="sb-muted">المستخدمون والصلاحيات: Supabase Auth مفعّل</p></div>
    </div>
   </div>
   <div class="sb-page" id="sb-page-content">
@@ -208,7 +208,7 @@ window.sbSupabase = window.supabase.createClient(
    <div class="sb-panel" style="margin-top:14px"><h3>مكتبة المحتوى الإضافي</h3><div class="sb-table-wrap" id="sb-content-table"></div></div>
   </div>
   <div class="sb-page" id="sb-page-analytics">
-   <div class="sb-panel"><h3>إحصائيات العناصر</h3><div class="sb-muted" style="margin-bottom:10px">الأرقام التالية تجمع العدادات المضمّنة مع الأحداث التي سجلها هذا المتصفح. ليست تحليلات زوار فريدة ولا بيانات خادم.</div><div class="sb-table-wrap" id="sb-stats-table"></div></div>
+   <div class="sb-panel"><h3>إحصائيات العناصر</h3><div class="sb-muted" style="margin-bottom:10px">تعرض هذه الصفحة أحداث الزيارات ومشاهدات التفاصيل ونقرات الروابط المسجلة في Supabase من جميع الأجهزة. الزيارة تمثل جلسة متصفح، وليست شخصاً فريداً.</div><div class="sb-table-wrap" id="sb-stats-table"></div></div>
   </div>
   <div class="sb-page" id="sb-page-settings">
    <div class="sb-grid2">
@@ -337,11 +337,16 @@ document.documentElement.lang=lang;document.documentElement.dir=lang==="en"?"ltr
  cur="الكل";drawChips();drawApps();drawMovies();drawThemes();drawMods();["guides","lab","trending"].forEach(drawRedlineResources);gLoaded=false;if($("games").classList.contains("show")){gLoaded=true;loadGames(true);}
 }
 
+window.sbTrackEvent=async function(eventType,itemKey){
+ if(!["view","download","visit"].includes(eventType))return;
+ try{const {error}=await window.sbSupabase.from("site_events").insert({event_type:eventType,item_key:String(itemKey||"site")});if(error)console.warn("SAUDI BYTE analytics event not saved:",error.message||error);}
+ catch(err){console.warn("SAUDI BYTE analytics unavailable:",err.message||err)}
+};
 const SK="sg_stats_v3";
 function loadS(){try{return JSON.parse(localStorage.getItem(SK))||{}}catch{return{}}}
 function saveS(d){localStorage.setItem(SK,JSON.stringify(d))}
 function getS(id,b){const s=loadS()[id]||{};return{views:(b.bv||0)+(s.views||0),downs:(b.bd||0)+(s.downs||0),likes:(b.bl||0)+(s.likes||0),liked:!!s.liked}}
-function bump(id,f,a=1){const st=loadS();if(!st[id])st[id]={};st[id][f]=(st[id][f]||0)+a;saveS(st);updG()}
+function bump(id,f,a=1){const st=loadS();if(!st[id])st[id]={};st[id][f]=(st[id][f]||0)+a;saveS(st);if(f==="views"&&window.sbTrackEvent)window.sbTrackEvent("view",id);if(f==="downs"&&window.sbTrackEvent)window.sbTrackEvent("download",id);updG()}
 function togLike(id){const st=loadS();if(!st[id])st[id]={};if(st[id].liked){st[id].liked=false;st[id].likes=Math.max(0,(st[id].likes||0)-1)}else{st[id].liked=true;st[id].likes=(st[id].likes||0)+1}saveS(st);updG();return st[id].liked}
 function fmt(n){if(n>=1e6)return(n/1e6).toFixed(1)+"M";if(n>=1e3)return(n/1e3).toFixed(1)+"K";return String(n)}
 function updG(){let v=0,d=0,l=0;[...apps,...movies,...themes,...modsList].forEach(a=>{const s=getS(a.id,a);v+=s.views;d+=s.downs;l+=s.likes});const st=loadS();v+=(st._sv||0);document.getElementById("gV").textContent=fmt(v);document.getElementById("gD").textContent=fmt(d);document.getElementById("gL").textContent=fmt(l)}
@@ -460,17 +465,25 @@ drawChips();drawApps();drawThemes();drawMovies();updG();document.querySelectorAl
  async function syncAdminContent(){await requireAdmin();let local=readItems();local=local.map(x=>{if(!UUID_RE.test(String(x.id||"")))x.id=newId();return x;});writeItems(local);if(local.length){const {error}=await window.sbSupabase.from("apps").upsert(local.map(rowFromItem),{onConflict:"id"});if(error)throw error;}const {data,error}=await window.sbSupabase.from("apps").select("*").order("created_at",{ascending:false});if(error)throw error;const cloud=(data||[]).map(itemFromRow);writeItems(cloud);return cloud;}
  const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
  const stats=()=>safeRead(STATS_KEY,{});
+ // Legacy local counters remain available for backup, while the admin dashboard reads cloud events.
  const fmtN=n=>Number(n||0).toLocaleString("ar-SA");
- function allStats(){const st=stats();let views=Number(st._sv||0),downs=0,likes=0;Object.keys(st).forEach(k=>{if(k!=="_sv"){views+=Number(st[k]?.views||0);downs+=Number(st[k]?.downs||0);likes+=Number(st[k]?.likes||0)}});return{views,downs,likes,raw:st}}
- function catalog(){return [...(typeof apps!=="undefined"?apps:[]),...readItems().filter(x=>x.status==="published")].filter((x,i,a)=>a.findIndex(y=>y.id===x.id)===i)}
+ let cloudEvents=[];
+ async function loadCloudEvents(){
+  await requireAdmin();
+  const {data,error}=await window.sbSupabase.from("site_events").select("event_type,item_key,created_at").order("created_at",{ascending:false}).limit(5000);
+  if(error)throw error;
+  cloudEvents=data||[];
+  return cloudEvents;
+ }
+ const cloudTotals=()=>cloudEvents.reduce((t,e)=>{t.total++;if(e.event_type==="visit")t.visits++;if(e.event_type==="view")t.views++;if(e.event_type==="download")t.downloads++;return t},{total:0,visits:0,views:0,downloads:0});
  function renderOverview(){
-  const items=readItems(), totals=allStats();
-  $a("sb-count-apps").textContent=fmtN((typeof apps!=="undefined"?apps:[]).length);
-  $a("sb-count-custom").textContent=fmtN(items.length);
-  $a("sb-count-views").textContent=fmtN(totals.views);
-  $a("sb-count-downs").textContent=fmtN(totals.downs);
-  const recent=Object.entries(totals.raw).filter(([k,v])=>k!=="_sv"&&((v.views||0)+(v.downs||0)+(v.likes||0)>0)).sort((x,y)=>(y[1].views||0)-(x[1].views||0)).slice(0,5);
-  $a("sb-recent").innerHTML=recent.length?recent.map(([id,v])=>`<div style="display:flex;justify-content:space-between;border-bottom:1px solid #292929;padding:8px 0"><span>${esc(id)}</span><span>👁 ${fmtN(v.views)} · ⬇ ${fmtN(v.downs)} · ❤ ${fmtN(v.likes)}</span></div>`).join(""):"لا توجد تفاعلات مسجلة في هذا المتصفح.";
+  const totals=cloudTotals();
+  $a("sb-count-apps").textContent=fmtN(totals.visits);
+  $a("sb-count-custom").textContent=fmtN(totals.views);
+  $a("sb-count-views").textContent=fmtN(totals.downloads);
+  $a("sb-count-downs").textContent=fmtN(totals.total);
+  const recent=cloudEvents.slice(0,6);
+  $a("sb-recent").innerHTML=recent.length?recent.map(e=>`<div style="display:flex;justify-content:space-between;border-bottom:1px solid #292929;padding:8px 0"><span>${esc(e.item_key||"site")}</span><span>${e.event_type==="visit"?"زيارة":e.event_type==="view"?"مشاهدة":"نقرة رابط"} · ${new Date(e.created_at).toLocaleString("ar-SA")}</span></div>`).join(""):"لا توجد أحداث سحابية بعد.";
  }
  function renderContent(){
   const items=readItems(), host=$a("sb-content-table");
@@ -480,10 +493,12 @@ drawChips();drawApps();drawThemes();drawMovies();updG();document.querySelectorAl
   host.querySelectorAll("[data-delete]").forEach(b=>b.onclick=()=>deleteItem(b.dataset.delete));
  }
  function renderStats(){
-  const items=catalog(), st=stats(), rows=items.map(x=>({id:x.id,name:x.n,views:Number(x.bv||0)+Number(st[x.id]?.views||0),downs:Number(x.bd||0)+Number(st[x.id]?.downs||0),likes:Number(x.bl||0)+Number(st[x.id]?.likes||0)})).sort((a,b)=>b.views-a.views);
-  $a("sb-stats-table").innerHTML=`<table><thead><tr><th>العنصر</th><th>المشاهدات</th><th>نقرات التحميل</th><th>الإعجابات</th></tr></thead><tbody>${rows.slice(0,100).map(x=>`<tr><td>${esc(x.name)}</td><td>${fmtN(x.views)}</td><td>${fmtN(x.downs)}</td><td>${fmtN(x.likes)}</td></tr>`).join("")}</tbody></table>`;
+  const items=catalog(), byId=new Map(items.map(x=>[String(x.id),x.n])), grouped={};
+  cloudEvents.forEach(e=>{const id=String(e.item_key||"site");if(!grouped[id])grouped[id]={views:0,downs:0};if(e.event_type==="view")grouped[id].views++;if(e.event_type==="download")grouped[id].downs++;});
+  const rows=Object.entries(grouped).map(([id,v])=>({name:byId.get(id)||id,views:v.views,downs:v.downs})).sort((a,b)=>(b.views+b.downs)-(a.views+a.downs));
+  $a("sb-stats-table").innerHTML=`<table><thead><tr><th>العنصر</th><th>مشاهدات التفاصيل</th><th>نقرات الروابط</th></tr></thead><tbody>${rows.slice(0,100).map(x=>`<tr><td>${esc(x.name)}</td><td>${fmtN(x.views)}</td><td>${fmtN(x.downs)}</td></tr>`).join("")}</tbody></table>`;
  }
- function refresh(){renderOverview();renderContent();renderStats()}
+ function refresh(){renderContent();loadCloudEvents().then(()=>{renderOverview();renderStats()}).catch(err=>{$a("sb-recent").textContent="تعذر تحميل الإحصائيات: "+(err.message||"تحقق من صلاحيات site_events");$a("sb-stats-table").textContent="تعذر تحميل الإحصائيات السحابية."})}
  function resetForm(){ $a("sb-content-form").reset();$a("sb-edit-id").value="";$a("sb-icon").value="🧩";$a("sb-editor-title").textContent="إضافة عنصر جديد إلى دليل البرامج";$a("sb-form-status").textContent=""; }
  function editItem(id){const x=readItems().find(v=>v.id===id);if(!x)return;$a("sb-edit-id").value=x.id;$a("sb-name").value=x.n;$a("sb-category").value=x.c;$a("sb-summary").value=x.s;$a("sb-url").value=x.u;$a("sb-download").value=x.dl||"";$a("sb-icon").value=x.i||"🧩";$a("sb-status").value=x.status;$a("sb-editor-title").textContent="تعديل عنصر المحتوى";document.querySelector('[data-tab="content"]').click();$a("sb-name").focus();}
  async function deleteItem(id){if(!confirm("تأكيد حذف هذا العنصر؟"))return;try{await requireAdmin();const {error}=await window.sbSupabase.from("apps").delete().eq("id",id);if(error)throw error;writeItems(readItems().filter(x=>x.id!==id));refresh();if(typeof drawApps==="function")drawApps();$a("sb-form-status").textContent="تم حذف العنصر من قاعدة البيانات.";}catch(err){$a("sb-form-status").textContent="تعذر الحذف: "+(err.message||"خطأ غير معروف");}}
@@ -527,6 +542,7 @@ drawChips();drawApps();drawThemes();drawMovies();updG();document.querySelectorAl
  $a("sb-export").onclick=exportBackup;$a("sb-export-2").onclick=exportBackup;
  $a("sb-import-file").addEventListener("change",async e=>{const f=e.target.files?.[0];if(!f)return;try{const data=JSON.parse(await f.text());if(!Array.isArray(data.customItems)||!data.stats||typeof data.stats!=="object")throw new Error("invalid");if(!confirm("سيتم استبدال المحتوى الإضافي والإحصائيات الحالية. هل تريد المتابعة؟"))return;writeItems(data.customItems);localStorage.setItem(STATS_KEY,JSON.stringify(data.stats));refresh();if(typeof drawApps==="function")drawApps();$a("sb-backup-status").textContent="تم استيراد النسخة الاحتياطية."; }catch{$a("sb-backup-status").textContent="ملف النسخة غير صالح أو غير متوافق."}finally{e.target.value="";}});
  $a("sb-reset-stats").onclick=()=>{if(!confirm("هل أنت متأكد من مسح كل الإحصائيات المحلية؟"))return;localStorage.removeItem(STATS_KEY);refresh();if(typeof updG==="function")updG();$a("sb-settings-status").textContent="تم مسح الإحصائيات المحلية.";};
+ try{if(!sessionStorage.getItem("sb_visit_recorded")){sessionStorage.setItem("sb_visit_recorded","1");if(window.sbTrackEvent)window.sbTrackEvent("visit","site")}}catch{}
  if(location.hash==="#admin")openAdmin();
  // Add locally managed published entries to the live app directory before initial rendering.
  readItems().filter(x=>x.status==="published").forEach(x=>{if(typeof apps!=="undefined"&&!apps.some(a=>a.id===x.id))apps.push(x)});
