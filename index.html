@@ -267,16 +267,40 @@ window.sbSupabase = window.supabase.createClient(
 
 <script id="sb-admin-emergency-bridge">
 (function(){
- const launch=document.getElementById("sb-admin-launch");
- const panel=document.getElementById("sb-admin");
- const gate=document.getElementById("sb-auth-gate");
- const status=document.getElementById("sb-auth-status");
- if(!launch||!panel||!gate)return;
- launch.addEventListener("click",function(){
-  panel.classList.add("open");
-  panel.setAttribute("aria-hidden","false");
+ const launch=document.getElementById("sb-admin-launch"),panel=document.getElementById("sb-admin"),gate=document.getElementById("sb-auth-gate"),form=document.getElementById("sb-auth-form"),status=document.getElementById("sb-auth-status");
+ if(!launch||!panel||!gate||!form)return;
+ function showGate(message){
+  panel.classList.add("open");panel.setAttribute("aria-hidden","false");
   gate.style.display="flex";
-  if(status){status.style.color="#ddd";status.textContent="سجّل الدخول بحساب المدير للمتابعة.";}
+  if(status){status.style.color="#ddd";status.textContent=message||"سجّل الدخول بحساب المدير للمتابعة.";}
+ }
+ launch.addEventListener("click",function(e){e.preventDefault();e.stopImmediatePropagation();showGate();},true);
+ form.addEventListener("submit",async function(e){
+  e.preventDefault();e.stopImmediatePropagation();
+  if(!window.sbSupabase){if(status)status.textContent="خدمة تسجيل الدخول لم تُحمّل. حدّث الصفحة وحاول مجددًا.";return;}
+  const btn=form.querySelector('button[type="submit"]');if(btn)btn.disabled=true;
+  if(status){status.style.color="#ddd";status.textContent="جارٍ تسجيل الدخول والتحقق من صلاحية المدير...";}
+  try{
+   const {data,error}=await window.sbSupabase.auth.signInWithPassword({
+    email:document.getElementById("sb-auth-email").value.trim(),
+    password:document.getElementById("sb-auth-password").value
+   });
+   if(error)throw error;
+   const {data:isAdmin,error:adminError}=await window.sbSupabase.rpc("is_admin");
+   if(adminError)throw adminError;
+   if(!isAdmin){await window.sbSupabase.auth.signOut();throw new Error("الحساب صحيح لكنه غير مضاف إلى قائمة المدراء.");}
+   gate.style.display="none";
+   panel.classList.add("open");panel.setAttribute("aria-hidden","false");
+   history.replaceState(null,"",location.pathname+location.search+"#admin");
+   document.getElementById("sb-auth-password").value="";
+   if(status)status.textContent="";
+   document.querySelectorAll(".sb-tab").forEach((tab,i)=>tab.classList.toggle("active",i===0));
+   document.querySelectorAll(".sb-page").forEach((page,i)=>page.classList.toggle("active",i===0));
+   const contentStatus=document.getElementById("sb-form-status");
+   if(contentStatus)contentStatus.textContent="تم تسجيل الدخول بنجاح. جارٍ تحميل لوحة الإدارة.";
+  }catch(err){
+   if(status){status.style.color="#ff747b";status.textContent="تعذر تسجيل الدخول: "+(err.message||"تحقق من البيانات والاتصال.");}
+  }finally{if(btn)btn.disabled=false;}
  },true);
 })();
 </script>
