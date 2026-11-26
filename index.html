@@ -71,6 +71,10 @@
 .sb-field textarea{min-height:76px;resize:vertical}
 .sb-item-actions{display:flex;gap:6px;flex-wrap:wrap}
 .sb-empty{padding:25px;text-align:center;color:#999;border:1px dashed #3a3a3a;border-radius:12px}
+.sb-image-preview-wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:10px}
+.sb-image-preview-wrap[hidden]{display:none}
+.sb-image-preview-wrap img{width:150px;height:100px;object-fit:cover;border-radius:10px;border:1px solid #383838;background:#111}
+.app-cover{display:block;width:100%;height:150px;object-fit:cover;border-radius:11px;margin:0 0 12px;background:#111;border:1px solid #292929}
 .sb-analytics-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0}
 .sb-analytics-kpi{background:#111;border:1px solid #292929;border-radius:12px;padding:13px}
 .sb-analytics-kpi small{display:block;color:#999;font-size:11px}
@@ -222,10 +226,11 @@ window.sbSupabase = window.supabase.createClient(
       <div class="sb-field"><label for="sb-download">رابط التحميل (اختياري)</label><input id="sb-download" type="url" placeholder="https://..."></div>
       <div class="sb-field"><label for="sb-icon">أيقونة / Emoji</label><input id="sb-icon" maxlength="8" value="🧩"></div>
       <div class="sb-field"><label for="sb-status">حالة النشر</label><select id="sb-status"><option value="published">منشور</option><option value="draft">مسودة</option></select></div>
+      <div class="sb-field full"><label for="sb-image-file">صورة البرنامج</label><input id="sb-image-file" type="file" accept="image/png,image/jpeg,image/webp,image/gif"><div class="sb-muted">PNG أو JPG أو WebP أو GIF، بحد أقصى 5MB. اتركه فارغاً للاحتفاظ بالصورة الحالية.</div><div id="sb-image-preview-wrap" class="sb-image-preview-wrap" hidden><img id="sb-image-preview" alt="معاينة صورة البرنامج"><button type="button" class="sb-btn" id="sb-image-clear">إزالة المعاينة</button></div></div>
       <div class="sb-field full"><div class="sb-actions"><button class="sb-btn primary" type="submit">حفظ العنصر</button><button class="sb-btn" type="button" id="sb-cancel-edit">إلغاء التعديل</button></div><div class="sb-status" id="sb-form-status"></div></div>
      </form>
     </div>
-    <div class="sb-panel"><h3>ملاحظات النشر</h3><p class="sb-muted">• أضف روابط رسمية فقط، وتحقق منها قبل النشر.</p><p class="sb-muted">• المسودات تبقى في لوحة الإدارة ولا تظهر للزوار.</p><p class="sb-muted">• العناصر المنشورة تظهر ضمن قسم البرامج.</p><p class="sb-muted">• البيانات المضافة هنا محفوظة على هذا المتصفح فقط.</p></div>
+    <div class="sb-panel"><h3>ملاحظات النشر</h3><p class="sb-muted">• أضف روابط رسمية فقط، وتحقق منها قبل النشر.</p><p class="sb-muted">• المسودات تبقى في لوحة الإدارة ولا تظهر للزوار.</p><p class="sb-muted">• العناصر المنشورة تظهر ضمن قسم البرامج.</p><p class="sb-muted">• الصور تحفظ في Supabase Storage وتظهر للزوار تلقائياً.</p><p class="sb-muted">• بيانات البرامج والصور مرتبطة بقاعدة البيانات السحابية.</p></div>
    </div>
    <div class="sb-panel" style="margin-top:14px"><h3>مكتبة المحتوى الإضافي</h3><div class="sb-table-wrap" id="sb-content-table"></div></div>
   </div>
@@ -400,7 +405,7 @@ function goPage(id){document.querySelectorAll("#tabs button").forEach(x=>x.class
 function drawChips(){$("chips").innerHTML="";cats.forEach(c=>{const b=document.createElement("button");b.textContent=lang==="en"?(EN.cats[c]||c):c;if(c===cur)b.className="on";b.onclick=()=>{cur=c;drawChips();drawApps()};$("chips").appendChild(b)})}
 function anim(){document.querySelectorAll(".card").forEach((c,i)=>{c.classList.remove("vis");setTimeout(()=>c.classList.add("vis"),25+i*38)})}
 function makeCard(item){item=localized(item,item.c!==undefined?"apps":(["steamtools","paradoxplaza","luatools","steamdb","nexus"].includes(item.id)?"mods":"themes"));const s=getS(item.id,item);const d=document.createElement("div");d.className="card";const hasDl=!!item.dl;
-d.innerHTML=`<div class="ctop"><div class="ico">${item.i}</div><div class="ctitle"><h3>${item.n}</h3>${item.c?`<div class="tag">${item.c}</div>`:""}</div></div><p class="cdesc">${item.s}</p><div class="cstats"><div class="st">👁 <span>${fmt(s.views)}</span></div><div class="st">⬇ <span>${fmt(s.downs)}</span></div><div class="st lk ${s.liked?"on":""}">${s.liked?"❤️":"🤍"} <span>${fmt(s.likes)}</span></div></div><div class="cacts"><button class="btn btn-g det">${tr("details")}</button>${hasDl?`<a class="btn btn-ok" href="${item.dl}" target="_blank" rel="noopener" data-dl>⬇ ${tr("download")}</a>`:""}<a class="btn btn-p" href="${item.u}" target="_blank" rel="noopener" data-dl>🌐 ${tr("official")}</a></div>`;
+d.innerHTML=`${item.img?`<img class="app-cover" src="${esc(item.img)}" alt="${esc(item.n)}" loading="lazy" onerror="this.style.display='none'">`:""}<div class="ctop"><div class="ico">${item.i}</div><div class="ctitle"><h3>${item.n}</h3>${item.c?`<div class="tag">${item.c}</div>`:""}</div></div><p class="cdesc">${item.s}</p><div class="cstats"><div class="st">👁 <span>${fmt(s.views)}</span></div><div class="st">⬇ <span>${fmt(s.downs)}</span></div><div class="st lk ${s.liked?"on":""}">${s.liked?"❤️":"🤍"} <span>${fmt(s.likes)}</span></div></div><div class="cacts"><button class="btn btn-g det">${tr("details")}</button>${hasDl?`<a class="btn btn-ok" href="${item.dl}" target="_blank" rel="noopener" data-dl>⬇ ${tr("download")}</a>`:""}<a class="btn btn-p" href="${item.u}" target="_blank" rel="noopener" data-dl>🌐 ${tr("official")}</a></div>`;
 d.querySelector(".det").onclick=()=>openBox(item);d.querySelectorAll("[data-dl]").forEach(el=>el.onclick=()=>bump(item.id,"downs"));
 const lk=d.querySelector(".lk");lk.onclick=e=>{e.stopPropagation();const liked=togLike(item.id);const ns=getS(item.id,item);lk.classList.toggle("on",liked);lk.innerHTML=`${liked?"❤️":"🤍"} <span>${fmt(ns.likes)}</span>`};return d}
 function drawApps(){const t=$("q").value.trim().toLowerCase();$("appGrid").innerHTML="";const f=apps.filter(a=>{const x=localized(a,"apps");return(cur==="الكل"||a.c===cur)&&(x.n.toLowerCase().includes(t)||x.s.toLowerCase().includes(t)||x.c.toLowerCase().includes(t))});if(!f.length){$("appGrid").innerHTML=`<p class="note" style="grid-column:1/-1">${tr("noResults")}</p>`;return}f.forEach(a=>$("appGrid").appendChild(makeCard(a)));anim()}
@@ -498,8 +503,8 @@ drawChips();drawApps();drawThemes();drawMovies();updG();document.querySelectorAl
  const writeItems=items=>localStorage.setItem(ADMIN_KEY,JSON.stringify(items));
  const UUID_RE=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
  const newId=()=>crypto.randomUUID();
- const rowFromItem=x=>({id:x.id,name:x.n,description:x.s||"",category:x.c||"الأدوات المساعدة",icon:x.i||"🧩",official_url:x.u,download_url:x.dl||null,status:x.status==="published"?"published":"draft"});
- const itemFromRow=x=>({id:x.id,n:x.name,c:x.category||"الأدوات المساعدة",s:x.description||"",d:x.description||"",i:x.icon||"🧩",u:x.official_url,dl:x.download_url||null,status:x.status||"draft",bv:0,bd:0,bl:0});
+ const rowFromItem=x=>({id:x.id,name:x.n,description:x.s||"",category:x.c||"الأدوات المساعدة",icon:x.i||"🧩",official_url:x.u,download_url:x.dl||null,image_url:x.img||null,status:x.status==="published"?"published":"draft"});
+ const itemFromRow=x=>({id:x.id,n:x.name,c:x.category||"الأدوات المساعدة",s:x.description||"",d:x.description||"",i:x.icon||"🧩",u:x.official_url,dl:x.download_url||null,img:x.image_url||null,status:x.status||"draft",bv:0,bd:0,bl:0});
  async function requireAdmin(){const {data:{session}}=await window.sbSupabase.auth.getSession();if(!session)throw new Error("انتهت جلسة الدخول.");const {data,error}=await window.sbSupabase.rpc("is_admin");if(error||!data)throw new Error("تعذر التحقق من صلاحية المدير.");}
  async function syncAdminContent(){await requireAdmin();let local=readItems();local=local.map(x=>{if(!UUID_RE.test(String(x.id||"")))x.id=newId();return x;});writeItems(local);if(local.length){const {error}=await window.sbSupabase.from("apps").upsert(local.map(rowFromItem),{onConflict:"id"});if(error)throw error;}const {data,error}=await window.sbSupabase.from("apps").select("*").order("created_at",{ascending:false});if(error)throw error;const cloud=(data||[]).map(itemFromRow);writeItems(cloud);return cloud;}
  const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -553,8 +558,13 @@ drawChips();drawApps();drawThemes();drawMovies();updG();document.querySelectorAl
  }
  function refresh(){renderContent();loadCloudEvents().then(()=>{renderOverview();renderStats()}).catch(err=>{$a("sb-recent").textContent="تعذر تحميل الإحصائيات: "+(err.message||"تحقق من صلاحيات site_events");$a("sb-stats-table").textContent="تعذر تحميل الإحصائيات السحابية."})}
  document.querySelectorAll("[data-stats-range]").forEach(b=>b.addEventListener("click",()=>{statsRange=Number(b.dataset.statsRange)===30?30:7;renderStats()}));
- function resetForm(){ $a("sb-content-form").reset();$a("sb-edit-id").value="";$a("sb-icon").value="🧩";$a("sb-editor-title").textContent="إضافة عنصر جديد إلى دليل البرامج";$a("sb-form-status").textContent=""; }
- function editItem(id){const x=readItems().find(v=>v.id===id);if(!x)return;$a("sb-edit-id").value=x.id;$a("sb-name").value=x.n;$a("sb-category").value=x.c;$a("sb-summary").value=x.s;$a("sb-url").value=x.u;$a("sb-download").value=x.dl||"";$a("sb-icon").value=x.i||"🧩";$a("sb-status").value=x.status;$a("sb-editor-title").textContent="تعديل عنصر المحتوى";document.querySelector('[data-tab="content"]').click();$a("sb-name").focus();}
+ let currentImageUrl=null,imagePreviewObjectUrl=null;
+ function showImagePreview(src){const wrap=$a("sb-image-preview-wrap"),img=$a("sb-image-preview");img.src=src;wrap.hidden=false;}
+ function clearImagePreview(){if(imagePreviewObjectUrl){URL.revokeObjectURL(imagePreviewObjectUrl);imagePreviewObjectUrl=null;}$a("sb-image-preview").removeAttribute("src");$a("sb-image-preview-wrap").hidden=true;$a("sb-image-file").value="";}
+ $a("sb-image-file").addEventListener("change",()=>{const file=$a("sb-image-file").files?.[0];if(!file){if(currentImageUrl)showImagePreview(currentImageUrl);else clearImagePreview();return;}if(!["image/jpeg","image/png","image/webp","image/gif"].includes(file.type)||file.size>5*1024*1024){$a("sb-form-status").style.color="#ff747b";$a("sb-form-status").textContent="اختر صورة PNG أو JPG أو WebP أو GIF بحجم لا يتجاوز 5MB."; $a("sb-image-file").value="";return;}if(imagePreviewObjectUrl)URL.revokeObjectURL(imagePreviewObjectUrl);imagePreviewObjectUrl=URL.createObjectURL(file);showImagePreview(imagePreviewObjectUrl);});
+ $a("sb-image-clear").addEventListener("click",()=>{clearImagePreview();currentImageUrl=null;});
+ function resetForm(){ $a("sb-content-form").reset();$a("sb-edit-id").value="";$a("sb-icon").value="🧩";$a("sb-editor-title").textContent="إضافة عنصر جديد إلى دليل البرامج";$a("sb-form-status").textContent="";currentImageUrl=null;clearImagePreview();}
+ function editItem(id){const x=readItems().find(v=>v.id===id);if(!x)return;$a("sb-edit-id").value=x.id;$a("sb-name").value=x.n;$a("sb-category").value=x.c;$a("sb-summary").value=x.s;$a("sb-url").value=x.u;$a("sb-download").value=x.dl||"";$a("sb-icon").value=x.i||"🧩";$a("sb-status").value=x.status;currentImageUrl=x.img||null;if(currentImageUrl)showImagePreview(currentImageUrl);else clearImagePreview();$a("sb-editor-title").textContent="تعديل عنصر المحتوى";document.querySelector('[data-tab="content"]').click();$a("sb-name").focus();}
  async function deleteItem(id){if(!confirm("تأكيد حذف هذا العنصر؟"))return;try{await requireAdmin();const {error}=await window.sbSupabase.from("apps").delete().eq("id",id);if(error)throw error;writeItems(readItems().filter(x=>x.id!==id));refresh();if(typeof drawApps==="function")drawApps();$a("sb-form-status").textContent="تم حذف العنصر من قاعدة البيانات.";}catch(err){$a("sb-form-status").textContent="تعذر الحذف: "+(err.message||"خطأ غير معروف");}}
  async function openAdmin(){
   const {data:{session}} = await window.sbSupabase.auth.getSession();
@@ -585,7 +595,9 @@ drawChips();drawApps();drawThemes();drawMovies();updG();document.querySelectorAl
   try{
    await requireAdmin();
    const oldId=$a("sb-edit-id").value,id=oldId||newId();
-   const item={id,n:name,c:$a("sb-category").value,i:$a("sb-icon").value.trim()||"🧩",s:$a("sb-summary").value.trim(),d:$a("sb-summary").value.trim(),u:url,dl:download||null,bv:0,bd:0,bl:0,status:$a("sb-status").value};
+   const file=$a("sb-image-file").files?.[0];let imageUrl=currentImageUrl;
+   if(file){if(!["image/jpeg","image/png","image/webp","image/gif"].includes(file.type)||file.size>5*1024*1024)throw new Error("صيغة الصورة أو حجمها غير مقبول.");const ext=({ "image/jpeg":"jpg","image/png":"png","image/webp":"webp","image/gif":"gif"})[file.type];const path="apps/"+id+"/"+Date.now()+"."+ext;const {error:uploadError}=await window.sbSupabase.storage.from("app-images").upload(path,file,{cacheControl:"31536000",contentType:file.type,upsert:true});if(uploadError)throw new Error("فشل رفع الصورة: "+uploadError.message);const {data:publicData}=window.sbSupabase.storage.from("app-images").getPublicUrl(path);imageUrl=publicData.publicUrl;}
+   const item={id,n:name,c:$a("sb-category").value,i:$a("sb-icon").value.trim()||"🧩",s:$a("sb-summary").value.trim(),d:$a("sb-summary").value.trim(),u:url,dl:download||null,img:imageUrl||null,bv:0,bd:0,bl:0,status:$a("sb-status").value};
    const {error}=await window.sbSupabase.from("apps").upsert(rowFromItem(item),{onConflict:"id"});if(error)throw error;
    const items=readItems(),at=items.findIndex(x=>x.id===id);if(at>=0)items[at]=item;else items.unshift(item);
    writeItems(items);resetForm();refresh();if(typeof drawApps==="function")drawApps();status.style.color="#70d89a";status.textContent="تم الحفظ بنجاح في Supabase.";
