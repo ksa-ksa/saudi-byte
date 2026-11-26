@@ -70,6 +70,7 @@
 .sb-field input,.sb-field select,.sb-field textarea{width:100%;border:1px solid #343434;background:#0d0d0d;color:#fff;border-radius:9px;padding:11px;font:13px Tahoma;min-width:0}
 .sb-field textarea{min-height:76px;resize:vertical}
 .sb-item-actions{display:flex;gap:6px;flex-wrap:wrap}
+.sb-content-tools{display:grid;grid-template-columns:minmax(0,1fr) 160px;gap:9px;margin:12px 0}.sb-content-tools input,.sb-content-tools select{min-width:0;width:100%;border:1px solid #343434;background:#0d0d0d;color:#fff;border-radius:9px;padding:10px;font:12px Tahoma}.sb-item-cell{display:flex;align-items:center;gap:10px;min-width:190px}.sb-item-thumb{width:48px;height:48px;flex:0 0 48px;object-fit:cover;border-radius:9px;border:1px solid #333;background:#111}.sb-item-thumb-empty{display:grid;place-items:center;font-size:22px}
 .sb-empty{padding:25px;text-align:center;color:#999;border:1px dashed #3a3a3a;border-radius:12px}
 .sb-image-preview-wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:10px}
 .sb-image-preview-wrap[hidden]{display:none}
@@ -232,7 +233,7 @@ window.sbSupabase = window.supabase.createClient(
     </div>
     <div class="sb-panel"><h3>ملاحظات النشر</h3><p class="sb-muted">• أضف روابط رسمية فقط، وتحقق منها قبل النشر.</p><p class="sb-muted">• المسودات تبقى في لوحة الإدارة ولا تظهر للزوار.</p><p class="sb-muted">• العناصر المنشورة تظهر ضمن قسم البرامج.</p><p class="sb-muted">• الصور تحفظ في Supabase Storage وتظهر للزوار تلقائياً.</p><p class="sb-muted">• بيانات البرامج والصور مرتبطة بقاعدة البيانات السحابية.</p></div>
    </div>
-   <div class="sb-panel" style="margin-top:14px"><h3>مكتبة المحتوى الإضافي</h3><div class="sb-table-wrap" id="sb-content-table"></div></div>
+   <div class="sb-panel" style="margin-top:14px"><h3>مكتبة المحتوى الإضافي</h3><div class="sb-content-tools"><input id="sb-content-search" type="search" placeholder="ابحث بالاسم أو الوصف أو التصنيف..." aria-label="البحث في البرامج"><select id="sb-content-filter" aria-label="تصفية حسب حالة النشر"><option value="all">كل العناصر</option><option value="published">المنشورة</option><option value="draft">المسودات</option></select></div><div class="sb-table-wrap" id="sb-content-table"></div></div>
   </div>
   <div class="sb-page" id="sb-page-analytics">
    <div class="sb-panel">
@@ -530,12 +531,17 @@ drawChips();drawApps();drawThemes();drawMovies();updG();document.querySelectorAl
   $a("sb-recent").innerHTML=recent.length?recent.map(e=>`<div style="display:flex;justify-content:space-between;border-bottom:1px solid #292929;padding:8px 0"><span>${esc(e.item_key||"site")}</span><span>${e.event_type==="visit"?"زيارة":e.event_type==="view"?"مشاهدة":"نقرة رابط"} · ${new Date(e.created_at).toLocaleString("ar-SA")}</span></div>`).join(""):"لا توجد أحداث سحابية بعد.";
  }
  function renderContent(){
-  const items=readItems(), host=$a("sb-content-table");
-  if(!items.length){host.innerHTML='<div class="sb-empty">لم تتم إضافة عناصر بعد. استخدم النموذج لإضافة أول عنصر.</div>';return}
-  host.innerHTML=`<table><thead><tr><th>العنصر</th><th>التصنيف</th><th>الحالة</th><th>الإجراءات</th></tr></thead><tbody>${items.map(x=>`<tr><td>${esc(x.i)} ${esc(x.n)}<div class="sb-muted">${esc(x.s)}</div></td><td>${esc(x.c)}</td><td>${x.status==="published"?"منشور":"مسودة"}</td><td><div class="sb-item-actions"><button class="sb-btn" data-edit="${esc(x.id)}">تعديل</button><button class="sb-btn danger" data-delete="${esc(x.id)}">حذف</button></div></td></tr>`).join("")}</tbody></table>`;
+  const all=readItems(), host=$a("sb-content-table");
+  const q=($a("sb-content-search")?.value||"").trim().toLocaleLowerCase("ar");
+  const filter=$a("sb-content-filter")?.value||"all";
+  const items=all.filter(x=>(filter==="all"||x.status===filter)&&(!q||[x.n,x.s,x.c].some(v=>String(v||"").toLocaleLowerCase("ar").includes(q))));
+  if(!all.length){host.innerHTML='<div class="sb-empty">لم تتم إضافة عناصر بعد. استخدم النموذج لإضافة أول عنصر.</div>';return}
+  if(!items.length){host.innerHTML='<div class="sb-empty">ما لقينا عناصر تطابق البحث أو التصفية.</div>';return}
+  host.innerHTML=`<table><thead><tr><th>العنصر</th><th>التصنيف</th><th>الحالة</th><th>الإجراءات</th></tr></thead><tbody>${items.map(x=>`<tr><td><div class="sb-item-cell">${x.img?`<img class="sb-item-thumb" src="${esc(x.img)}" alt="" loading="lazy">`:`<span class="sb-item-thumb sb-item-thumb-empty">${esc(x.i||"🧩")}</span>`}<div><b>${esc(x.n)}</b><div class="sb-muted">${esc(x.s)}</div></div></div></td><td>${esc(x.c)}</td><td>${x.status==="published"?"منشور":"مسودة"}</td><td><div class="sb-item-actions"><button class="sb-btn" data-edit="${esc(x.id)}">تعديل</button><button class="sb-btn danger" data-delete="${esc(x.id)}">حذف</button></div></td></tr>`).join("")}</tbody></table><div class="sb-muted" style="padding:9px 2px">عرض ${fmtN(items.length)} من ${fmtN(all.length)} عنصر</div>`;
   host.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>editItem(b.dataset.edit));
   host.querySelectorAll("[data-delete]").forEach(b=>b.onclick=()=>deleteItem(b.dataset.delete));
  }
+ $a("sb-content-search").addEventListener("input",renderContent);$a("sb-content-filter").addEventListener("change",renderContent);
  let statsRange=7;
  function renderStats(){
   const items=readItems(), byId=new Map(items.map(x=>[String(x.id),x.n])), grouped={};
