@@ -149,48 +149,40 @@
     <section class="page" id="apps"><div class="section-head"><div><div class="section-kicker">SOFTWARE VAULT</div><h2 data-ar="مركز البرامج" data-en="Software Vault">مركز البرامج</h2><p data-ar="أدوات مختارة لويندوز والإنتاجية والحماية" data-en="Curated Windows, productivity and security tools">أدوات مختارة لويندوز والإنتاجية والحماية</p></div></div><div class="toolbar"><div class="sbox"><span class="si">⌕</span><input id="q" placeholder="ابحث عن برنامج..."></div><div class="chips" id="chips"></div></div><div class="grid" id="appGrid"></div></section>
     <section class="page" id="games"><div class="games-head"><div><div class="section-kicker">STEAM DISCOVERY ENGINE</div><h2 id="gamesTitle">مكتبة الألعاب</h2><p class="note" id="gamesNote">ابحث في متجر Steam واستكشف الألعاب على دفعات.</p></div><a class="btn btn-red" href="https://store.steampowered.com/search/?category1=998" target="_blank" rel="noopener">↗ متجر Steam</a></div><div class="games-search"><span>⌕</span><input id="gameSearch" type="search" placeholder="ابحث عن لعبة في Steam..." autocomplete="off"><button id="gameSearchBtn" type="button">بحث</button></div><div id="sb-curated-games-wrap" hidden style="margin:18px 0"><div class="section-kicker">SAUDI BYTE PICKS</div><h3 style="margin:6px 0 12px">ألعاب مختارة</h3><div class="grid" id="sb-curated-game-grid"></div></div><p class="games-status" id="gamesStatus" aria-live="polite"></p><div class="grid" id="gameGrid"></div><div class="games-more-wrap"><button class="btn btn-red" id="gamesMore" type="button" hidden>تحميل المزيد</button></div></section>
     <section class="page" id="tv">
-      <div class="section-head"><div><div class="section-kicker">SAUDI BYTE WATCH</div><h2>الأفلام والأخبار المباشرة</h2><p class="note">شاهد من داخل الموقع عبر مشغلات مضمّنة من المصادر الرسمية أو أفلام متاحة ضمن الملكية العامة.</p></div></div>
-      <div class="tv-switch" style="display:flex;gap:9px;flex-wrap:wrap;margin:18px 0">
-        <button class="btn btn-red" type="button" id="tv-tab-news">📰 الأخبار المباشرة</button>
-        <button class="btn btn-p" type="button" id="tv-tab-movies">🎬 الأفلام</button>
-      </div>
-      <div id="tv-news-panel">
-        <div style="display:grid;grid-template-columns:minmax(0,1fr) 230px;gap:14px;align-items:start">
-          <div style="background:#101010;border:1px solid #292929;border-radius:16px;padding:12px">
-            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px"><strong id="tv-now-title">Sky News Arabia · سكاي نيوز عربية</strong><span class="badge-live" style="color:#ff626b;font-size:11px">● بث مباشر</span></div>
-            <div style="position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden"><iframe id="tv-player" src="https://www.youtube-nocookie.com/embed/live_stream?channel=UCIJXOvggjKtCagMfxvcCzAA" title="بث إخباري مباشر" style="position:absolute;inset:0;width:100%;height:100%;border:0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
-            <p class="note" style="margin:10px 2px 0">اختر قناة من القائمة. البث يُعرض داخل هذه الصفحة، وقد يتوقف مؤقتًا إذا غيّر الناشر رابط البث أو قيّد التضمين.</p>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:8px" id="tv-channel-list">
-            <button type="button" class="btn btn-p tv-channel" data-video="UCIJXOvggjKtCagMfxvcCzAA" data-title="Sky News Arabia · سكاي نيوز عربية">🇦🇪 سكاي نيوز عربية</button>
-            <button type="button" class="btn btn-p tv-channel" data-video="UCelk6aHijZq-GJBBB9YpReA" data-title="BBC News Arabic · بي بي سي عربي">🌍 بي بي سي عربي</button>
-            <button type="button" class="btn btn-p tv-channel" data-video="UCNye-wNBqNL5ZzHSJj3l8Bg" data-title="Al Jazeera English · الجزيرة الإنجليزية">🌐 الجزيرة الإنجليزية</button>
-            <button type="button" class="btn btn-p tv-channel" data-video="UCQfwfsi5VrQ8yKZ-UWmAEFg" data-title="FRANCE 24 English · فرانس 24">🇫🇷 فرانس 24 الإنجليزية</button>
-            <button type="button" class="btn btn-p tv-channel" data-video="UCdTyuXgmJkG_O8_75eqej-w" data-title="FRANCE 24 Arabic · فرانس 24 العربية">🇫🇷 فرانس 24 العربية</button>
-          </div>
+      <div class="section-head"><div><div class="section-kicker">SAUDI BYTE WATCH</div><h2>التلفزيون المباشر</h2><p class="note">اختر قناة أخبار أو أفلام، وسيبدأ البث داخل الموقع تلقائيًا. يبدأ التشغيل مكتومًا لتوافق المتصفحات، ويمكنك رفع الصوت من المشغّل.</p></div></div>
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:14px;align-items:start" id="tv-layout">
+        <div style="background:#101010;border:1px solid #292929;border-radius:16px;padding:12px;min-width:0">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px"><strong id="tv-now-title">Sky News Arabia · سكاي نيوز عربية</strong><span class="badge-live" style="color:#ff626b;font-size:11px">● بث مباشر</span></div>
+          <div style="position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden"><iframe id="tv-player" src="https://www.youtube-nocookie.com/embed/live_stream?channel=UCIJXOvggjKtCagMfxvcCzAA&autoplay=1&mute=1&rel=0" title="التلفزيون المباشر" style="position:absolute;inset:0;width:100%;height:100%;border:0" allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
+          <p class="note" style="margin:10px 2px 0">إذا لم يبدأ البث تلقائيًا، فقد يكون الناشر أوقف البث أو منع التضمين في منطقتك. جرّب قناة أخرى من القائمة.</p>
         </div>
-        <p class="note" style="margin-top:12px">ملاحظة: روابط الفيديو المباشر قد تتبدل. القنوات التي لا توفر تضمينًا رسميًا لن تظهر كمشغّل عامل، ولن نستبدلها بروابط غير رسمية.</p>
-      </div>
-      <div id="tv-movies-panel" hidden>
-        <div style="background:#101010;border:1px solid #292929;border-radius:16px;padding:14px">
-          <div class="section-kicker">PUBLIC DOMAIN CLASSICS</div><h3 style="margin:6px 0 12px">The General (1926) · الجنرال</h3>
-          <div style="position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden"><iframe src="https://www.youtube-nocookie.com/embed/ezd0Sfo5lQw?rel=0" title="The General 1926 full movie" style="position:absolute;inset:0;width:100%;height:100%;border:0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
-          <p class="note" style="margin-top:10px">فيلم صامت كلاسيكي من عام 1926، متاح ضمن الملكية العامة في الولايات المتحدة. سنضيف أفلامًا أخرى بعد التحقق من مصدر النسخة وحقوقها وإمكانية تضمينها.</p>
+        <div style="background:#101010;border:1px solid #292929;border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:8px;max-height:620px;overflow:auto">
+          <div class="section-kicker">NEWS · الأخبار</div>
+          <button type="button" class="btn btn-p tv-channel active" data-video="UCIJXOvggjKtCagMfxvcCzAA" data-title="Sky News Arabia · سكاي نيوز عربية" data-kind="news">🇦🇪 سكاي نيوز عربية</button>
+          <button type="button" class="btn btn-p tv-channel" data-video="UCelk6aHijZq-GJBBB9YpReA" data-title="BBC News Arabic · بي بي سي عربي" data-kind="news">🌍 بي بي سي عربي</button>
+          <button type="button" class="btn btn-p tv-channel" data-video="UCNye-wNBqNL5ZzHSJj3l8Bg" data-title="Al Jazeera English · الجزيرة الإنجليزية" data-kind="news">🌐 الجزيرة الإنجليزية</button>
+          <button type="button" class="btn btn-p tv-channel" data-video="UCQfwfsi5VrQ8yKZ-UWmAEFg" data-title="FRANCE 24 English · فرانس 24 الإنجليزية" data-kind="news">🇫🇷 فرانس 24 الإنجليزية</button>
+          <button type="button" class="btn btn-p tv-channel" data-video="UCdTyuXgmJkG_O8_75eqej-w" data-title="FRANCE 24 Arabic · فرانس 24 العربية" data-kind="news">🇫🇷 فرانس 24 العربية</button>
+          <div class="section-kicker" style="margin-top:10px">MOVIES · قنوات الأفلام</div>
+          <button type="button" class="btn btn-p tv-channel" data-video="UCGjgAGxGWZXWLTHTlTVZXaw" data-title="Turkish Movies · أفلام تركية مدبلجة للعربية" data-kind="movies">🎬 أفلام تركية مدبلجة للعربية</button>
+          <p class="note" style="margin-top:4px">قناة الأفلام تعرض بثها المباشر الرسمي عند توفره. وقد يتغير البث أو يتوقف حسب جدول القناة.</p>
         </div>
       </div>
       <style>
-        #tv .tv-channel{width:100%;text-align:right;justify-content:flex-start;min-height:44px}
+        #tv .tv-channel{width:100%;text-align:right;justify-content:flex-start;min-height:44px;white-space:normal}
         #tv .tv-channel.active{border-color:#c8101e;background:#2a1114;color:#fff}
-        @media(max-width:720px){#tv-news-panel>div:first-child{grid-template-columns:1fr!important}#tv-channel-list{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))}}
+        @media(max-width:760px){#tv-layout{grid-template-columns:1fr!important}#tv-layout>div:last-child{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));max-height:none}#tv-layout>div:last-child .section-kicker,#tv-layout>div:last-child .note{grid-column:1/-1}}
       </style>
       <script>
       (() => {
         const root=document.getElementById('tv'); if(!root||root.dataset.bound)return;root.dataset.bound='1';
         const player=document.getElementById('tv-player'),title=document.getElementById('tv-now-title');
-        root.querySelectorAll('.tv-channel').forEach((b,i)=>{if(i===0)b.classList.add('active');b.addEventListener('click',()=>{root.querySelectorAll('.tv-channel').forEach(x=>x.classList.remove('active'));b.classList.add('active');title.textContent=b.dataset.title;const id=b.dataset.video;player.src=id.length===24?'https://www.youtube-nocookie.com/embed/live_stream?channel='+id:'https://www.youtube-nocookie.com/embed/'+id+'?autoplay=0&rel=0';});});
-        const news=document.getElementById('tv-news-panel'),movies=document.getElementById('tv-movies-panel'),nb=document.getElementById('tv-tab-news'),mb=document.getElementById('tv-tab-movies');
-        nb.addEventListener('click',()=>{news.hidden=false;movies.hidden=true;nb.className='btn btn-red';mb.className='btn btn-p';});
-        mb.addEventListener('click',()=>{news.hidden=true;movies.hidden=false;mb.className='btn btn-red';nb.className='btn btn-p';});
+        root.querySelectorAll('.tv-channel').forEach(b=>b.addEventListener('click',()=>{
+          root.querySelectorAll('.tv-channel').forEach(x=>x.classList.remove('active'));
+          b.classList.add('active');title.textContent=b.dataset.title;
+          const id=b.dataset.video;
+          player.src='https://www.youtube-nocookie.com/embed/live_stream?channel='+encodeURIComponent(id)+'&autoplay=1&mute=1&rel=0';
+        }));
       })();
       </script>
     </section>
