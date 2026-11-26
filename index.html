@@ -790,7 +790,7 @@ if(loadCache()){render();status(isEnglish()?"Showing saved catalog · checking f
 syncCatalog(false);setInterval(()=>syncCatalog(false),15*60*1000);document.addEventListener("visibilitychange",()=>{if(!document.hidden&&Date.now()-lastSync>=CACHE_TTL)syncCatalog(true)});
 const animeObserver=new MutationObserver(()=>{if($("anime")?.classList.contains("show")){render();if(Date.now()-lastSync>=CACHE_TTL)syncCatalog(true)}});animeObserver.observe(document.documentElement,{attributes:true,subtree:true,attributeFilter:["class","lang"]});
 })();
-
+</script>
 
 </body>
 </html>
