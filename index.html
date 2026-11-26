@@ -149,12 +149,16 @@
     <section class="page" id="apps"><div class="section-head"><div><div class="section-kicker">SOFTWARE VAULT</div><h2 data-ar="مركز البرامج" data-en="Software Vault">مركز البرامج</h2><p data-ar="أدوات مختارة لويندوز والإنتاجية والحماية" data-en="Curated Windows, productivity and security tools">أدوات مختارة لويندوز والإنتاجية والحماية</p></div></div><div class="toolbar"><div class="sbox"><span class="si">⌕</span><input id="q" placeholder="ابحث عن برنامج..."></div><div class="chips" id="chips"></div></div><div class="grid" id="appGrid"></div></section>
     <section class="page" id="games"><div class="games-head"><div><div class="section-kicker">STEAM DISCOVERY ENGINE</div><h2 id="gamesTitle">مكتبة الألعاب</h2><p class="note" id="gamesNote">ابحث في متجر Steam واستكشف الألعاب على دفعات.</p></div><a class="btn btn-red" href="https://store.steampowered.com/search/?category1=998" target="_blank" rel="noopener">↗ متجر Steam</a></div><div class="games-search"><span>⌕</span><input id="gameSearch" type="search" placeholder="ابحث عن لعبة في Steam..." autocomplete="off"><button id="gameSearchBtn" type="button">بحث</button></div><div id="sb-curated-games-wrap" hidden style="margin:18px 0"><div class="section-kicker">SAUDI BYTE PICKS</div><h3 style="margin:6px 0 12px">ألعاب مختارة</h3><div class="grid" id="sb-curated-game-grid"></div></div><p class="games-status" id="gamesStatus" aria-live="polite"></p><div class="grid" id="gameGrid"></div><div class="games-more-wrap"><button class="btn btn-red" id="gamesMore" type="button" hidden>تحميل المزيد</button></div></section>
     <section class="page" id="tv">
-      <div class="section-head"><div><div class="section-kicker">SAUDI BYTE WATCH</div><h2>التلفزيون المباشر</h2><p class="note">قائمة موسّعة للأخبار العربية والعالمية وقنوات الأفلام. اختر أي قناة وسيبدأ تحميل البث داخل الموقع تلقائيًا، مع كتم الصوت أولًا.</p></div></div>
+      <div class="section-head"><div><div class="section-kicker">SAUDI BYTE WATCH</div><h2>التلفزيون المباشر</h2><p class="note">أخبار عربية وعالمية، وقنوات أفلام مجانية مرخصة. اختر القناة لبدء التشغيل داخل الموقع. قد يمنع المتصفح التشغيل التلقائي بالصوت، لذلك يبدأ الفيديو مكتومًا.</p></div></div>
       <div style="display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:14px;align-items:start" id="tv-layout">
         <div style="background:#101010;border:1px solid #292929;border-radius:16px;padding:12px;min-width:0">
           <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px"><strong id="tv-now-title">Sky News Arabia · سكاي نيوز عربية</strong><span class="badge-live" style="color:#ff626b;font-size:11px">● بث مباشر</span></div>
-          <div style="position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden"><iframe id="tv-player" src="https://www.youtube-nocookie.com/embed/live_stream?channel=UCIJXOvggjKtCagMfxvcCzAA&autoplay=1&mute=1&rel=0" title="التلفزيون المباشر" style="position:absolute;inset:0;width:100%;height:100%;border:0" allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
-          <p class="note" style="margin:10px 2px 0">بعض القنوات لا تبث طوال اليوم أو تمنع التضمين في بعض الدول. أضفنا مصادر رسمية وأخرى من أدلة بث عامة، لذلك قد تتعطل بعض القنوات. إذا لم يعمل بث، اختر غيره.</p>
+          <div id="tv-screen" style="position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden">
+            <iframe id="tv-player" src="https://www.youtube.com/embed/live_stream?channel=UCIJXOvggjKtCagMfxvcCzAA&autoplay=1&mute=1&rel=0" title="التلفزيون المباشر" style="position:absolute;inset:0;width:100%;height:100%;border:0" allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+            <video id="tv-hls-player" controls autoplay muted playsinline style="display:none;position:absolute;inset:0;width:100%;height:100%;border:0;background:#000"></video>
+            <div id="tv-external-fallback" style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;flex-direction:column;gap:12px;padding:20px;text-align:center;color:#fff;background:#111"><strong>هذا البث يتطلب المشاهدة من الموقع الرسمي</strong><a id="tv-external-link" class="btn btn-red" href="https://www.foxnews.com/video/5614615980001" target="_blank" rel="noopener">فتح البث الرسمي ↗</a><small>قد يتطلب اشتراكًا أو تسجيل الدخول حسب بلدك ومزود الخدمة.</small></div>
+          </div>
+          <p class="note" style="margin:10px 2px 0">إذا لم يبدأ بث قناة معينة، فقد تكون خارج البث حاليًا أو تمنع التضمين. قنوات CNN وFOX News الرسمية قد تتطلب اشتراكًا، لذلك لا نوفر أي تجاوز للقيود.</p>
         </div>
         <div style="background:#101010;border:1px solid #292929;border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:8px;max-height:680px;overflow:auto" id="tv-channel-list">
           <div class="section-kicker">ARABIC NEWS · أخبار عربية</div>
@@ -167,17 +171,17 @@
           <button type="button" class="btn btn-p tv-channel" data-video="UCH4UNKBHSNwstan99YDoCVg" data-title="Alghad TV · قناة الغد">🇪🇬 قناة الغد</button>
           <button type="button" class="btn btn-p tv-channel" data-video="UC30ditU5JI16o5NbFsHde_Q" data-title="DW Arabic · دويتشه فيله عربية">🇩🇪 دويتشه فيله عربية</button>
           <button type="button" class="btn btn-p tv-channel" data-video="UCdTyuXgmJkG_O8_75eqej-w" data-title="France 24 Arabic · فرانس 24 العربية">🇫🇷 فرانس 24 العربية</button>
-          <button type="button" class="btn btn-p tv-channel" data-video="UCNye-wNBqNL5ZzHSJj3l8Bg" data-title="Al Jazeera English · الجزيرة الإنجليزية">🌍 الجزيرة الإنجليزية</button>
           <div class="section-kicker" style="margin-top:10px">WORLD NEWS · أخبار عالمية</div>
+          <button type="button" class="btn btn-p tv-channel" data-video="UCupvZG-5ko_eiXAupbDfxWw" data-title="CNN · سي إن إن">🇺🇸 CNN</button>
+          <button type="button" class="btn btn-p tv-channel" data-external="https://www.foxnews.com/video/5614615980001" data-title="FOX News · فوكس نيوز">🇺🇸 FOX News · الموقع الرسمي</button>
+          <button type="button" class="btn btn-p tv-channel" data-video="UCNye-wNBqNL5ZzHSJj3l8Bg" data-title="Al Jazeera English · الجزيرة الإنجليزية">🌍 الجزيرة الإنجليزية</button>
           <button type="button" class="btn btn-p tv-channel" data-video="UCQfwfsi5VrQ8yKZ-UWmAEFg" data-title="France 24 English · فرانس 24 الإنجليزية">🇫🇷 فرانس 24 الإنجليزية</button>
           <button type="button" class="btn btn-p tv-channel" data-video="UCVgO39Bk5sMo66-6o6Spn6Q" data-title="ABC News Australia · أخبار أستراليا">🇦🇺 ABC News أستراليا</button>
-          <div class="section-kicker" style="margin-top:10px">MOVIES · قنوات الأفلام</div>
-          <button type="button" class="btn btn-p tv-channel" data-video="UCuaMJTqQ_W7qztqZ_zyErJg" data-title="Bee Movies · أفلام عربية" data-unverified="1">🎞️ Bee Movies · أفلام عربية</button>
-          <button type="button" class="btn btn-p tv-channel" data-video="UCGjgAGxGWZXWLTHTlTVZXaw" data-title="Turkish Movies · أفلام تركية مدبلجة" data-unverified="1">🎬 أفلام تركية مدبلجة</button>
-          <button type="button" class="btn btn-p tv-channel" data-video="UClkAjKQYtKbXgl0OKYvozIQ" data-title="30A Classic Movies · أفلام كلاسيكية" data-unverified="1">🎥 30A أفلام كلاسيكية</button>
-          <button type="button" class="btn btn-p tv-channel" data-video="UCKjYt2FY0sNtEWFp3gicsZA" data-title="Classic Movies · سينما كلاسيكية" data-unverified="1">🍿 Classic Movies</button>
-          <button type="button" class="btn btn-p tv-channel" data-video="UC32M9DWf0zgMhBYGd_MOiIw" data-title="Bee Theater · سينما عربية" data-unverified="1">🎬 Bee Theater</button>
-          <p class="note" style="margin-top:5px">علامة المصدر غير المؤكد تعني أن القناة مدرجة من دليل عام ولم نتحقق من ملكيتها أو استمرار بثها. لا نستضيف أي فيديو، والمشغّل يعرض ما تنشره القناة.</p>
+          <div class="section-kicker" style="margin-top:10px">MOVIES · أفلام مجانية</div>
+          <button type="button" class="btn btn-p tv-channel" data-hls="https://live.retrostrange.com/hls/stream.m3u8" data-title="RetroStrange TV · أفلام كلاسيكية مرخصة">🎞️ RetroStrange TV · كلاسيكيات 24/7</button>
+          <button type="button" class="btn btn-p tv-channel" data-external="https://thelostreel.com/tv" data-title="Lost Reel TV · أفلام ملكية عامة">🍿 Lost Reel TV · أفلام ملكية عامة</button>
+          <button type="button" class="btn btn-p tv-channel" data-external="https://starlitetv.com/" data-title="Starlite TV · قنوات أفلام كلاسيكية">🎬 Starlite TV · 13 قناة كلاسيكية</button>
+          <p class="note" style="margin-top:5px">أزلنا قنوات الأفلام السابقة غير العاملة أو غير الموثقة. القنوات الجديدة للأفلام تعرض أعمالًا كلاسيكية موصوفة بأنها ملكية عامة أو مرخصة، وقد تختلف حقوق بعض العناوين حسب الدولة.</p>
         </div>
       </div>
       <style>
@@ -186,15 +190,24 @@
         #tv .tv-channel:after{content:"";display:none}
         @media(max-width:760px){#tv-layout{grid-template-columns:1fr!important}#tv-channel-list{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));max-height:none!important}#tv-channel-list .section-kicker,#tv-channel-list .note{grid-column:1/-1}}
       </style>
+      <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
       <script>
       (() => {
         const root=document.getElementById('tv'); if(!root||root.dataset.bound)return;root.dataset.bound='1';
-        const player=document.getElementById('tv-player'),title=document.getElementById('tv-now-title');
+        const frame=document.getElementById('tv-player'),video=document.getElementById('tv-hls-player'),fallback=document.getElementById('tv-external-fallback'),externalLink=document.getElementById('tv-external-link'),title=document.getElementById('tv-now-title');
+        let hls=null;
+        function stopPlayers(){if(hls){hls.destroy();hls=null;}video.pause();video.removeAttribute('src');video.load();video.style.display='none';frame.style.display='none';fallback.style.display='none';}
         root.querySelectorAll('.tv-channel').forEach(b=>b.addEventListener('click',()=>{
-          root.querySelectorAll('.tv-channel').forEach(x=>x.classList.remove('active'));
-          b.classList.add('active');title.textContent=b.dataset.title+(b.dataset.unverified?' · مصدر غير مؤكد':'');
-          const id=b.dataset.video;
-          player.src='https://www.youtube-nocookie.com/embed/live_stream?channel='+encodeURIComponent(id)+'&autoplay=1&mute=1&rel=0';
+          root.querySelectorAll('.tv-channel').forEach(x=>x.classList.remove('active'));b.classList.add('active');title.textContent=b.dataset.title;
+          stopPlayers();
+          if(b.dataset.external){fallback.style.display='flex';externalLink.href=b.dataset.external;return;}
+          if(b.dataset.hls){video.style.display='block';video.muted=true;const src=b.dataset.hls;
+            if(video.canPlayType('application/vnd.apple.mpegurl')){video.src=src;video.play().catch(()=>{});}
+            else if(window.Hls&&Hls.isSupported()){hls=new Hls({enableWorker:true});hls.loadSource(src);hls.attachMedia(video);hls.on(Hls.Events.MANIFEST_PARSED,()=>video.play().catch(()=>{}));}
+            else{fallback.style.display='flex';externalLink.href='https://live.retrostrange.com/';}
+            return;
+          }
+          frame.style.display='block';frame.src='https://www.youtube.com/embed/live_stream?channel='+encodeURIComponent(b.dataset.video)+'&autoplay=1&mute=1&rel=0';
         }));
       })();
       </script>
