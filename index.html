@@ -168,7 +168,7 @@ window.sbSupabase = window.supabase.createClient(
     <button class="sb-btn" id="sb-close">العودة للموقع ✕</button>
    </div>
   </header>
-  <div class="sb-notice"><b>وضع الإدارة المحمي:</b> تسجيل الدخول والتحقق من صلاحية المدير يتمان عبر Supabase. بيانات إدارة المحتوى والإحصائيات في هذه النسخة لا تزال محلية، وسيتم ربط مزامنتها بقاعدة البيانات في خطوة لاحقة.</div>
+  <div class="sb-notice"><b>وضع الإدارة المحمي:</b> تسجيل الدخول وإدارة البرامج تتم عبر Supabase. تتم مزامنة عناصر المحتوى بين الأجهزة، بينما الإحصائيات لا تزال محلية في هذه المرحلة.</div>
   <nav class="sb-tabs">
    <button class="sb-tab active" data-tab="overview">نظرة عامة</button>
    <button class="sb-tab" data-tab="content">إدارة المحتوى</button>
@@ -184,7 +184,7 @@ window.sbSupabase = window.supabase.createClient(
    </div>
    <div class="sb-grid2">
     <div class="sb-panel"><h3>آخر نشاط مسجل</h3><div id="sb-recent" class="sb-muted">لا توجد بيانات بعد.</div></div>
-    <div class="sb-panel"><h3>حالة الأنظمة</h3><p class="sb-muted">المحتوى الأساسي: مضمّن داخل HTML</p><p class="sb-muted">المحتوى الإضافي: محفوظ محلياً</p><p class="sb-muted">الإحصائيات: محلية وغير مركزية</p><p class="sb-muted">المستخدمون والصلاحيات: غير مفعّلة</p></div>
+    <div class="sb-panel"><h3>حالة الأنظمة</h3><p class="sb-muted">المحتوى الأساسي: مضمّن داخل HTML</p><p class="sb-muted">المحتوى الإضافي: Supabase ومزامنة سحابية</p><p class="sb-muted">الإحصائيات: محلية وغير مركزية حالياً</p><p class="sb-muted">المستخدمون والصلاحيات: Supabase Auth مفعّل</p></div>
    </div>
   </div>
   <div class="sb-page" id="sb-page-content">
@@ -452,6 +452,12 @@ drawChips();drawApps();drawThemes();drawMovies();updG();document.querySelectorAl
  const safeRead=(key,fallback)=>{try{const v=JSON.parse(localStorage.getItem(key));return v??fallback}catch{return fallback}};
  const readItems=()=>safeRead(ADMIN_KEY,[]);
  const writeItems=items=>localStorage.setItem(ADMIN_KEY,JSON.stringify(items));
+ const UUID_RE=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+ const newId=()=>crypto.randomUUID();
+ const rowFromItem=x=>({id:x.id,name:x.n,description:x.s||"",category:x.c||"الأدوات المساعدة",icon:x.i||"🧩",official_url:x.u,download_url:x.dl||null,status:x.status==="published"?"published":"draft"});
+ const itemFromRow=x=>({id:x.id,n:x.name,c:x.category||"الأدوات المساعدة",s:x.description||"",d:x.description||"",i:x.icon||"🧩",u:x.official_url,dl:x.download_url||null,status:x.status||"draft",bv:0,bd:0,bl:0});
+ async function requireAdmin(){const {data:{session}}=await window.sbSupabase.auth.getSession();if(!session)throw new Error("انتهت جلسة الدخول.");const {data,error}=await window.sbSupabase.rpc("is_admin");if(error||!data)throw new Error("تعذر التحقق من صلاحية المدير.");}
+ async function syncAdminContent(){await requireAdmin();let local=readItems();local=local.map(x=>{if(!UUID_RE.test(String(x.id||"")))x.id=newId();return x;});writeItems(local);if(local.length){const {error}=await window.sbSupabase.from("apps").upsert(local.map(rowFromItem),{onConflict:"id"});if(error)throw error;}const {data,error}=await window.sbSupabase.from("apps").select("*").order("created_at",{ascending:false});if(error)throw error;const cloud=(data||[]).map(itemFromRow);writeItems(cloud);return cloud;}
  const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
  const stats=()=>safeRead(STATS_KEY,{});
  const fmtN=n=>Number(n||0).toLocaleString("ar-SA");
@@ -480,13 +486,14 @@ drawChips();drawApps();drawThemes();drawMovies();updG();document.querySelectorAl
  function refresh(){renderOverview();renderContent();renderStats()}
  function resetForm(){ $a("sb-content-form").reset();$a("sb-edit-id").value="";$a("sb-icon").value="🧩";$a("sb-editor-title").textContent="إضافة عنصر جديد إلى دليل البرامج";$a("sb-form-status").textContent=""; }
  function editItem(id){const x=readItems().find(v=>v.id===id);if(!x)return;$a("sb-edit-id").value=x.id;$a("sb-name").value=x.n;$a("sb-category").value=x.c;$a("sb-summary").value=x.s;$a("sb-url").value=x.u;$a("sb-download").value=x.dl||"";$a("sb-icon").value=x.i||"🧩";$a("sb-status").value=x.status;$a("sb-editor-title").textContent="تعديل عنصر المحتوى";document.querySelector('[data-tab="content"]').click();$a("sb-name").focus();}
- function deleteItem(id){if(!confirm("تأكيد حذف هذا العنصر؟"))return;writeItems(readItems().filter(x=>x.id!==id));refresh();if(typeof drawApps==="function")drawApps();}
+ async function deleteItem(id){if(!confirm("تأكيد حذف هذا العنصر؟"))return;try{await requireAdmin();const {error}=await window.sbSupabase.from("apps").delete().eq("id",id);if(error)throw error;writeItems(readItems().filter(x=>x.id!==id));refresh();if(typeof drawApps==="function")drawApps();$a("sb-form-status").textContent="تم حذف العنصر من قاعدة البيانات.";}catch(err){$a("sb-form-status").textContent="تعذر الحذف: "+(err.message||"خطأ غير معروف");}}
  async function openAdmin(){
   const {data:{session}} = await window.sbSupabase.auth.getSession();
   if(!session){$a("sb-auth-gate").style.display="flex";$a("sb-auth-email").focus();return;}
   const {data:isAdmin,error} = await window.sbSupabase.rpc("is_admin");
   if(error||!isAdmin){await window.sbSupabase.auth.signOut();$a("sb-auth-status").textContent="هذا الحساب ليس ضمن المدراء."; $a("sb-auth-gate").style.display="flex";return;}
   $a("sb-admin").classList.add("open");$a("sb-admin").setAttribute("aria-hidden","false");refresh();history.replaceState(null,"",location.pathname+location.search+"#admin");
+  try{await syncAdminContent();refresh();$a("sb-form-status").textContent="تمت مزامنة المحتوى مع Supabase.";}catch(err){$a("sb-form-status").textContent="تعذرت المزامنة: "+(err.message||"تحقق من اتصال قاعدة البيانات");}
 }
  function closeAdmin(){ $a("sb-admin").classList.remove("open");$a("sb-admin").setAttribute("aria-hidden","true");history.replaceState(null,"",location.pathname+location.search);}
  $a("sb-admin-launch").addEventListener("click",openAdmin);$a("sb-close").addEventListener("click",closeAdmin);
@@ -502,14 +509,19 @@ drawChips();drawApps();drawThemes();drawMovies();updG();document.querySelectorAl
  $a("sb-logout").addEventListener("click",async()=>{await window.sbSupabase.auth.signOut();closeAdmin();$a("sb-auth-status").textContent="تم تسجيل الخروج.";});
 
  document.querySelectorAll(".sb-tab").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".sb-tab").forEach(x=>x.classList.toggle("active",x===b));document.querySelectorAll(".sb-page").forEach(x=>x.classList.toggle("active",x.id==="sb-page-"+b.dataset.tab));}));
- $a("sb-content-form").addEventListener("submit",e=>{
-  e.preventDefault();const name=$a("sb-name").value.trim(),url=$a("sb-url").value.trim(),download=$a("sb-download").value.trim();
-  if(!/^https?:\/\//i.test(url)|| (download&&!/^https?:\/\//i.test(download))){$a("sb-form-status").textContent="استخدم روابط تبدأ بـ https:// أو http://";return}
-  const items=readItems(),oldId=$a("sb-edit-id").value,id=oldId||("custom-"+Date.now());
-  const item={id,n:name,c:$a("sb-category").value,i:$a("sb-icon").value.trim()||"🧩",s:$a("sb-summary").value.trim(),d:$a("sb-summary").value.trim(),u:url,dl:download||null,bv:0,bd:0,bl:0,status:$a("sb-status").value};
-  const at=items.findIndex(x=>x.id===id);if(at>=0)items[at]=item;else items.unshift(item);
-  writeItems(items);resetForm();refresh();if(typeof drawApps==="function")drawApps();$a("sb-form-status").textContent="تم حفظ العنصر محلياً.";
- });
+ $a("sb-content-form").addEventListener("submit",async e=>{
+  e.preventDefault();const status=$a("sb-form-status");status.textContent="جارٍ الحفظ في قاعدة البيانات...";
+  const name=$a("sb-name").value.trim(),url=$a("sb-url").value.trim(),download=$a("sb-download").value.trim();
+  if(!name||!/^https?:\\/\\//i.test(url)||(download&&!/^https?:\\/\\//i.test(download))){status.textContent="أدخل الاسم وروابط تبدأ بـ https:// أو http://";return}
+  try{
+   await requireAdmin();
+   const oldId=$a("sb-edit-id").value,id=oldId||newId();
+   const item={id,n:name,c:$a("sb-category").value,i:$a("sb-icon").value.trim()||"🧩",s:$a("sb-summary").value.trim(),d:$a("sb-summary").value.trim(),u:url,dl:download||null,bv:0,bd:0,bl:0,status:$a("sb-status").value};
+   const {error}=await window.sbSupabase.from("apps").upsert(rowFromItem(item),{onConflict:"id"});if(error)throw error;
+   const items=readItems(),at=items.findIndex(x=>x.id===id);if(at>=0)items[at]=item;else items.unshift(item);
+   writeItems(items);resetForm();refresh();if(typeof drawApps==="function")drawApps();status.style.color="#70d89a";status.textContent="تم الحفظ بنجاح في Supabase.";
+  }catch(err){status.style.color="#ff747b";status.textContent="لم يتم الحفظ: "+(err.message||"تحقق من الاتصال والصلاحيات");}
+ });;
  $a("sb-cancel-edit").onclick=resetForm;
  function exportBackup(){const payload={product:"SAUDI BYTE",schema:1,exportedAt:new Date().toISOString(),customItems:readItems(),stats:stats()};const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="saudi-byte-backup.json";a.click();URL.revokeObjectURL(a.href);}
  $a("sb-export").onclick=exportBackup;$a("sb-export-2").onclick=exportBackup;
@@ -518,6 +530,7 @@ drawChips();drawApps();drawThemes();drawMovies();updG();document.querySelectorAl
  if(location.hash==="#admin")openAdmin();
  // Add locally managed published entries to the live app directory before initial rendering.
  readItems().filter(x=>x.status==="published").forEach(x=>{if(typeof apps!=="undefined"&&!apps.some(a=>a.id===x.id))apps.push(x)});
+ (async()=>{try{const {data,error}=await window.sbSupabase.from("apps").select("*").eq("status","published").order("created_at",{ascending:false});if(error)throw error;(data||[]).forEach(row=>{const x=itemFromRow(row),at=apps.findIndex(a=>a.id===x.id);if(at>=0)apps[at]=x;else apps.push(x)});if(typeof drawApps==="function")drawApps();}catch(err){console.warn("SAUDI BYTE cloud catalog unavailable:",err.message||err)}})();
  window.addEventListener("keydown",e=>{if(e.ctrlKey&&e.shiftKey&&e.key.toLowerCase()==="a"){e.preventDefault();openAdmin()}if(e.key==="Escape"&&$a("sb-admin").classList.contains("open"))closeAdmin()});
 })();
 
