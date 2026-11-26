@@ -40,6 +40,24 @@
 .footer-signature{color:#f04b52;letter-spacing:1.4px;font-size:11px}
 .footer-divider{color:#e50914}
 @media(max-width:700px){.hero{min-height:205px!important;padding:25px 20px!important;background-position:42% center!important}.hero h1{font-size:29px!important}.hero p{font-size:11px!important}.hero-signature{font-size:8px;margin-top:14px}}
+
+.cinema-toolbar{display:grid;gap:12px;margin:18px 0 8px}
+.cinema-filters{display:flex;gap:8px;flex-wrap:wrap}
+.cinema-filters button{border:1px solid var(--line);background:#151515;color:#ddd;border-radius:10px;padding:9px 13px;cursor:pointer;font:inherit;font-size:12px}
+.cinema-filters button.active,.cinema-filters button:hover{background:#3a1115;border-color:var(--red);color:#fff}
+.cinema-search{display:flex;gap:8px;flex-wrap:wrap}
+.cinema-search input{flex:1;min-width:180px;background:#111;border:1px solid var(--line);border-radius:10px;padding:11px 13px;color:#fff;font:inherit}
+.cinema-card{overflow:hidden;display:flex;flex-direction:column}
+.cinema-card .gimg{width:100%;aspect-ratio:2/3;object-fit:cover;background:#171717}
+.cinema-no-poster{aspect-ratio:2/3;display:grid;place-items:center;background:linear-gradient(135deg,#171717,#310d12);font-size:42px}
+.cinema-card-body{padding:13px;display:flex;flex-direction:column;gap:9px;flex:1}
+.cinema-meta{display:flex;gap:10px;flex-wrap:wrap;color:#bbb;font-size:11px}
+.cinema-card .cdesc{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;min-height:66px}
+.cinema-card .cacts{margin-top:auto}
+.cinema-credit{margin:18px 0 4px;color:#888;font-size:10px;text-align:center}
+.cinema-credit a{color:#ddd;text-decoration:underline}
+@media(max-width:520px){.cinema-search>*{flex:1}.cinema-filters button{flex:1}}
+
 </style>
 
 <style id="sb-admin-css">
@@ -148,7 +166,27 @@
     <section class="page" id="apps"><div class="section-head"><div><div class="section-kicker">SOFTWARE VAULT</div><h2 data-ar="مركز البرامج" data-en="Software Vault">مركز البرامج</h2><p data-ar="أدوات مختارة لويندوز والإنتاجية والحماية" data-en="Curated Windows, productivity and security tools">أدوات مختارة لويندوز والإنتاجية والحماية</p></div></div><div class="toolbar"><div class="sbox"><span class="si">⌕</span><input id="q" placeholder="ابحث عن برنامج..."></div><div class="chips" id="chips"></div></div><div class="grid" id="appGrid"></div></section>
     <section class="page" id="games"><div class="games-head"><div><div class="section-kicker">STEAM DISCOVERY ENGINE</div><h2 id="gamesTitle">مكتبة الألعاب</h2><p class="note" id="gamesNote">ابحث في متجر Steam واستكشف الألعاب على دفعات.</p></div><a class="btn btn-red" href="https://store.steampowered.com/search/?category1=998" target="_blank" rel="noopener">↗ متجر Steam</a></div><div class="games-search"><span>⌕</span><input id="gameSearch" type="search" placeholder="ابحث عن لعبة في Steam..." autocomplete="off"><button id="gameSearchBtn" type="button">بحث</button></div><p class="games-status" id="gamesStatus" aria-live="polite"></p><div class="grid" id="gameGrid"></div><div class="games-more-wrap"><button class="btn btn-red" id="gamesMore" type="button" hidden>تحميل المزيد</button></div></section>
     <section class="page" id="mods"><div class="section-head"><div><div class="section-kicker">MOD WORKSHOP</div><h2 data-ar="ورشة المودات" data-en="Mod Workshop">ورشة المودات</h2><p class="note" data-ar="مصادر وأدوات لتعديل الألعاب وإدارة الإضافات" data-en="Sources and tools for game modding and add-on management">مصادر وأدوات لتعديل الألعاب وإدارة الإضافات</p></div></div><div class="grid" id="modGrid"></div></section>
-    <section class="page" id="movies"><div class="section-head"><div><div class="section-kicker">SAUDI BYTE CINEMA</div><h2 data-ar="السينما والترفيه" data-en="Cinema & Entertainment">السينما والترفيه</h2><p class="note" id="movieNote">منصات رسمية للمشاهدة، مع مصادر تتابع أحدث الإضافات والترند يوميًا.</p></div></div><div class="cinema-live"><span class="cinema-live-dot"></span><strong>تحديثات سينمائية يومية</strong><a href="https://ottasia.com/browse?country=SA" target="_blank" rel="noopener">الجديد في منصات السعودية</a><a href="https://flixpatrol.com/streaming-services/list/asia/saudi-arabia/" target="_blank" rel="noopener">ترتيب منصات المشاهدة</a></div><div class="grid" id="movieGrid"></div></section>
+    <section class="page" id="movies">
+      <div class="section-head"><div><div class="section-kicker">SAUDI BYTE CINEMA · LIVE</div><h2 data-ar="السينما والترفيه" data-en="Cinema & Entertainment">السينما والترفيه</h2><p class="note" id="movieNote">اكتشف الأفلام والمسلسلات الرائجة والجديدة، ببيانات تتجدد تلقائيًا.</p></div></div>
+      <div class="cinema-toolbar">
+        <div class="cinema-filters">
+          <button class="active" type="button" data-cinema-feed="trending_movies" data-ar="أفلام رائجة" data-en="Trending movies">أفلام رائجة</button>
+          <button type="button" data-cinema-feed="trending_tv" data-ar="مسلسلات رائجة" data-en="Trending TV">مسلسلات رائجة</button>
+          <button type="button" data-cinema-feed="now_playing" data-ar="في السينما الآن" data-en="Now playing">في السينما الآن</button>
+          <button type="button" data-cinema-feed="upcoming" data-ar="قريبًا" data-en="Upcoming">قريبًا</button>
+          <button type="button" data-cinema-feed="popular_tv" data-ar="مسلسلات مشهورة" data-en="Popular TV">مسلسلات مشهورة</button>
+        </div>
+        <div class="cinema-search">
+          <input id="cinemaSearch" type="search" placeholder="ابحث عن فيلم أو مسلسل..." autocomplete="off">
+          <button class="btn btn-red" id="cinemaSearchBtn" type="button" data-ar="بحث" data-en="Search">بحث</button>
+          <button class="btn btn-g" id="cinemaRefresh" type="button" data-ar="↻ تحديث" data-en="↻ Refresh">↻ تحديث</button>
+        </div>
+      </div>
+      <p class="games-status" id="cinemaStatus" aria-live="polite"></p>
+      <div class="grid" id="movieGrid"></div>
+      <div class="games-more-wrap"><button class="btn btn-red" id="cinemaMore" type="button" hidden data-ar="تحميل المزيد" data-en="Load more">تحميل المزيد</button></div>
+      <p class="cinema-credit">بيانات الأفلام والمسلسلات والصور مقدمة من <a href="https://www.themoviedb.org/" target="_blank" rel="noopener">TMDB</a>. هذا المنتج غير معتمد أو مصدّق من TMDB.</p>
+    </section>
     <section class="page" id="themes"><div class="section-head"><div><div class="section-kicker">SETUP STUDIO</div><h2 data-ar="استوديو التخصيص" data-en="Setup Studio">استوديو التخصيص</h2><p class="note" data-ar="مصادر لتخصيص ويندوز وتحسين شكل سطح المكتب" data-en="Sources to customize Windows and your desktop">مصادر لتخصيص ويندوز وتحسين شكل سطح المكتب</p></div></div><div class="grid" id="themeGrid"></div></section>
     <section class="page" id="free"><div class="section-head"><div><div class="section-kicker">FREE TO PLAY</div><h2 data-ar="ألعاب مجانية" data-en="Free Games">ألعاب مجانية</h2><p class="note" data-ar="ألعاب مجانية للعب من متجر Steam، تتحدث بياناتها تلقائيًا." data-en="Free-to-play games from Steam, refreshed automatically.">ألعاب مجانية للعب من متجر Steam، تتحدث بياناتها تلقائيًا.</p></div><button class="btn btn-red" onclick="loadSteamCollection('free',true)">↻ <span data-ar="تحديث" data-en="Refresh">تحديث</span></button></div><p class="games-status" id="freeStatus" aria-live="polite"></p><div class="grid" id="freeGrid"></div></section>
     <section class="page" id="deals"><div class="section-head"><div><div class="section-kicker">STEAM SPECIALS</div><h2 data-ar="عروض Steam" data-en="Steam Deals">عروض Steam</h2><p class="note" data-ar="أحدث التخفيضات والأسعار من متجر Steam." data-en="Latest discounts and prices from Steam Store.">أحدث التخفيضات والأسعار من متجر Steam.</p></div><button class="btn btn-red" onclick="loadSteamCollection('deals',true)">↻ <span data-ar="تحديث" data-en="Refresh">تحديث</span></button></div><p class="games-status" id="dealsStatus" aria-live="polite"></p><div class="grid" id="dealsGrid"></div></section>
@@ -425,7 +463,7 @@ document.documentElement.lang=lang;document.documentElement.dir=lang==="en"?"ltr
  const labels={home:lang==="en"?"Overview":"الرئيسية",games:lang==="en"?"Game Library":"مكتبة الألعاب",mods:lang==="en"?"Mod Workshop":"ورشة المودات",apps:lang==="en"?"Software Vault":"مركز البرامج",movies:lang==="en"?"Cinema":"سينما",themes:lang==="en"?"Setup Studio":"استوديو التخصيص",free:lang==="en"?"Free Games":"ألعاب مجانية",deals:lang==="en"?"Steam Deals":"عروض Steam",upcoming:lang==="en"?"Upcoming Games":"الإصدارات القادمة",guides:lang==="en"?"Game Guides":"الأدلة والحلول",lab:lang==="en"?"Game Lab":"مختبر الألعاب",trending:lang==="en"?"Trending Mods":"المودات الرائجة"};document.querySelectorAll("#tabs button").forEach(b=>{const el=b.querySelector("span:last-child");if(el)el.textContent=labels[b.dataset.p]||el.textContent});document.querySelectorAll("[data-ar][data-en]").forEach(el=>{el.innerHTML=lang==="en"?el.dataset.en:el.dataset.ar});const crumb=document.getElementById("crumbText");if(crumb)crumb.textContent=labels[document.querySelector("#tabs button.active")?.dataset.p||"home"];
  $("q").placeholder=tr("search");const mn=$("movieNote");if(mn)mn.textContent=tr("movieNote");
  const gt=$("gamesTitle"),gn=$("gamesNote"),gs=$("gameSearch"),gb=$("gameSearchBtn"),gm=$("gamesMore");
- if(gt)gt.textContent=lang==="en"?"Game Library":"مكتبة الألعاب";if(gn)gn.textContent=lang==="en"?"Search Steam and explore games in live batches.":"ابحث في متجر Steam واستكشف الألعاب على دفعات.";if(gs)gs.placeholder=tr("gamesSearch");if(gb)gb.textContent=tr("gamesSearchBtn");if(gm)gm.textContent=tr("gamesMore");
+ const cs=$("cinemaSearch");if(cs)cs.placeholder=lang==="en"?"Search movies or TV shows...":"ابحث عن فيلم أو مسلسل...";if(cinemaLoaded&&$("movies")?.classList.contains("show"))loadCinema(true);\n if(gt)gt.textContent=lang==="en"?"Game Library":"مكتبة الألعاب";if(gn)gn.textContent=lang==="en"?"Search Steam and explore games in live batches.":"ابحث في متجر Steam واستكشف الألعاب على دفعات.";if(gs)gs.placeholder=tr("gamesSearch");if(gb)gb.textContent=tr("gamesSearchBtn");if(gm)gm.textContent=tr("gamesMore");
  
  
  cur="الكل";drawChips();drawApps();drawMovies();drawThemes();drawMods();["guides","lab","trending"].forEach(drawRedlineResources);gLoaded=false;if($("games").classList.contains("show")){gLoaded=true;loadGames(true);}
@@ -451,7 +489,7 @@ box.innerHTML=`<h2><span style="font-size:1.5rem">${item.i}</span> ${item.n}</h2
 box.querySelector(".close").onclick=()=>modal.classList.remove("show");modal.classList.add("show");
 setTimeout(()=>{if($("apps").classList.contains("show"))drawApps();if($("themes").classList.contains("show"))drawThemes();if($("movies").classList.contains("show"))drawMovies()},80)}
 modal.onclick=e=>{if(e.target===modal)modal.classList.remove("show")};
-function goPage(id){document.querySelectorAll("#tabs button").forEach(x=>x.classList.toggle("active",x.dataset.p===id));document.querySelectorAll(".page").forEach(p=>p.classList.toggle("show",p.id===id));const labels={home:lang==="en"?"Overview":"الرئيسية",games:lang==="en"?"Game Library":"مكتبة الألعاب",mods:lang==="en"?"Mod Workshop":"ورشة المودات",apps:lang==="en"?"Software Vault":"مركز البرامج",movies:lang==="en"?"Cinema":"سينما",themes:lang==="en"?"Setup Studio":"استوديو التخصيص",free:lang==="en"?"Free Games":"ألعاب مجانية",deals:lang==="en"?"Steam Deals":"عروض Steam",upcoming:lang==="en"?"Upcoming Games":"الإصدارات القادمة",guides:lang==="en"?"Game Guides":"الأدلة والحلول",lab:lang==="en"?"Game Lab":"مختبر الألعاب",trending:lang==="en"?"Trending Mods":"المودات الرائجة"};$("crumbText").textContent=labels[id]||id;if(id==="games")loadGamesOnOpen();if(id==="mods")drawMods();if(["free","deals","upcoming"].includes(id))loadSteamCollection(id,false);if(["guides","lab","trending"].includes(id))drawRedlineResources(id);if(["apps","themes","movies","mods","guides","lab","trending"].includes(id))setTimeout(anim,20);window.scrollTo({top:0,behavior:"smooth"})}document.querySelectorAll("#tabs button").forEach(b=>{b.onclick=()=>goPage(b.dataset.p)});
+function goPage(id){document.querySelectorAll("#tabs button").forEach(x=>x.classList.toggle("active",x.dataset.p===id));document.querySelectorAll(".page").forEach(p=>p.classList.toggle("show",p.id===id));const labels={home:lang==="en"?"Overview":"الرئيسية",games:lang==="en"?"Game Library":"مكتبة الألعاب",mods:lang==="en"?"Mod Workshop":"ورشة المودات",apps:lang==="en"?"Software Vault":"مركز البرامج",movies:lang==="en"?"Cinema":"سينما",themes:lang==="en"?"Setup Studio":"استوديو التخصيص",free:lang==="en"?"Free Games":"ألعاب مجانية",deals:lang==="en"?"Steam Deals":"عروض Steam",upcoming:lang==="en"?"Upcoming Games":"الإصدارات القادمة",guides:lang==="en"?"Game Guides":"الأدلة والحلول",lab:lang==="en"?"Game Lab":"مختبر الألعاب",trending:lang==="en"?"Trending Mods":"المودات الرائجة"};$("crumbText").textContent=labels[id]||id;if(id==="games")loadGamesOnOpen();if(id==="movies")loadCinemaOnOpen();if(id==="mods")drawMods();if(["free","deals","upcoming"].includes(id))loadSteamCollection(id,false);if(["guides","lab","trending"].includes(id))drawRedlineResources(id);if(["apps","themes","movies","mods","guides","lab","trending"].includes(id))setTimeout(anim,20);window.scrollTo({top:0,behavior:"smooth"})}document.querySelectorAll("#tabs button").forEach(b=>{b.onclick=()=>goPage(b.dataset.p)});
 function drawChips(){$("chips").innerHTML="";cats.forEach(c=>{const b=document.createElement("button");b.textContent=lang==="en"?(EN.cats[c]||c):c;if(c===cur)b.className="on";b.onclick=()=>{cur=c;drawChips();drawApps()};$("chips").appendChild(b)})}
 function anim(){document.querySelectorAll(".card").forEach((c,i)=>{c.classList.remove("vis");setTimeout(()=>c.classList.add("vis"),25+i*38)})}
 function brandIconMarkup(item){let domain='';try{domain=new URL(item.u).hostname.replace(/^www\./,'');}catch(e){}const fallback=escapeHtml(item.i||'◈');if(!domain)return '<span class="brand-fallback" style="display:grid">'+fallback+'</span>';return '<span class="brand-fallback">'+fallback+'</span><img src="https://www.google.com/s2/favicons?domain='+encodeURIComponent(domain)+'&sz=128" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display=\'none\';this.previousElementSibling.style.display=\'grid\'">';}
@@ -461,32 +499,73 @@ d.querySelector(".det").onclick=()=>openBox(item);d.querySelectorAll("[data-dl]"
 const lk=d.querySelector(".lk");lk.onclick=e=>{e.stopPropagation();const liked=togLike(item.id);const ns=getS(item.id,item);lk.classList.toggle("on",liked);lk.innerHTML=`${liked?"❤️":"🤍"} <span>${fmt(ns.likes)}</span>`};return d}
 function drawApps(){const t=$("q").value.trim().toLowerCase();$("appGrid").innerHTML="";const f=apps.filter(a=>{const x=localized(a,"apps");return(cur==="الكل"||a.c===cur)&&(x.n.toLowerCase().includes(t)||x.s.toLowerCase().includes(t)||x.c.toLowerCase().includes(t))});if(!f.length){$("appGrid").innerHTML=`<p class="note" style="grid-column:1/-1">${tr("noResults")}</p>`;return}f.forEach(a=>$("appGrid").appendChild(makeCard(a)));anim()}
 $("q").oninput=drawApps;
-function drawMovies(){
-  const g=$("movieGrid");if(!g)return;g.innerHTML="";
-  movies.forEach(raw=>{
-    const m=localized(raw,"movies");
-    const s=getS(m.id,m);
-    const d=document.createElement("div");d.className="card";
-    const poster=m.img?`<img class="gimg" src="${m.img}" alt="${m.promo||m.n}" loading="lazy" onerror="this.style.display='none'">`:"";
-    const promo=m.promo?`<div class="tag" style="margin-bottom:8px">🎞 ${m.promo}</div>`:"";
-    d.innerHTML=`${poster}
-      <div class="ctop"><div class="ico">${brandIconMarkup(m)}</div><div class="ctitle"><h3>${m.n}</h3></div></div>
-      ${promo}
-      <p class="cdesc">${m.s}</p>
-      <div class="cstats">
-        <div class="st">👁 <span>${fmt(s.views)}</span></div>
-        <div class="st lk ${s.liked?"on":""}">${s.liked?"❤️":"🤍"} <span>${fmt(s.likes)}</span></div>
-      </div>
-      <div class="cacts">
-        <a class="btn btn-p" href="${m.u}" target="_blank" rel="noopener" data-dl style="flex:1">${tr("watch")}</a>
-      </div>`;
-    d.querySelectorAll("[data-dl]").forEach(el=>el.onclick=()=>bump(m.id,"downs"));
-    const lk=d.querySelector(".lk");
-    if(lk) lk.onclick=e=>{e.stopPropagation();const liked=togLike(m.id);const ns=getS(m.id,m);lk.classList.toggle("on",liked);lk.innerHTML=`${liked?"❤️":"🤍"} <span>${fmt(ns.likes)}</span>`};
-    g.appendChild(d);
-  });
-  anim();
+let cinemaFeed="trending_movies",cinemaPage=1,cinemaBusy=false,cinemaLoaded=false,cinemaSearchTerm="",cinemaDebounce=null,cinemaRequestId=0;
+function cinemaStatus(message){const el=$("cinemaStatus");if(el)el.textContent=message}
+function cinemaTitle(x){return x.title||x.name||"Untitled"}
+function cinemaDate(x){return x.release_date||x.first_air_date||""}
+function cinemaCard(x){
+  const id=Number(x.id)||0,kind=x.media_type||(x.first_air_date?"tv":"movie");
+  const title=cinemaTitle(x),overview=x.overview|| (lang==="en"?"No description available.":"لا يوجد وصف متاح لهذا العمل.");
+  const poster=x.poster_path?"https://image.tmdb.org/t/p/w500"+x.poster_path:"";
+  const year=cinemaDate(x).slice(0,4),rating=Number(x.vote_average||0).toFixed(1);
+  const href="https://www.themoviedb.org/"+(kind==="tv"?"tv":"movie")+"/"+id;
+  const d=document.createElement("article");d.className="card cinema-card vis";
+  const image=poster?'<img class="gimg" src="'+escapeHtml(poster)+'" alt="'+escapeHtml(title)+'" loading="lazy" onerror="this.style.display=\'none\'">':'<div class="cinema-no-poster">🎬</div>';
+  const typeLabel=kind==="tv"?(lang==="en"?"TV Series":"مسلسل"):(lang==="en"?"Movie":"فيلم");
+  d.innerHTML=image+'<div class="cinema-card-body"><div class="ctop"><div class="ctitle"><h3>'+escapeHtml(title)+'</h3></div></div><div class="cinema-meta"><span>⭐ '+rating+'</span>'+(year?'<span>📅 '+escapeHtml(year)+'</span>':'')+'<span>'+typeLabel+'</span></div><p class="cdesc">'+escapeHtml(overview)+'</p><div class="cacts"><a class="btn btn-p" href="'+href+'" target="_blank" rel="noopener">'+(lang==="en"?"Details on TMDB":"التفاصيل والتقييمات")+' ↗</a></div></div>';
+  return d;
 }
+async function loadCinema(reset=false){
+  if(cinemaBusy&&!reset)return;
+  let requestId=cinemaRequestId;
+  if(reset){requestId=++cinemaRequestId;cinemaPage=1}
+  cinemaBusy=true;
+  const grid=$("movieGrid"),more=$("cinemaMore");
+  if(reset&&grid)grid.innerHTML="";
+  if(more)more.disabled=true;
+  cinemaStatus(lang==="en"?"Loading fresh movie and TV data…":"جارٍ جلب أحدث بيانات الأفلام والمسلسلات…");
+  try{
+    const params=new URLSearchParams({type:cinemaSearchTerm?"search":cinemaFeed,page:String(cinemaPage)});
+    if(cinemaSearchTerm)params.set("query",cinemaSearchTerm);
+    const response=await fetch("/api/cinema?"+params.toString(),{headers:{Accept:"application/json"},credentials:"same-origin"});
+    const payload=await response.json();
+    if(requestId!==cinemaRequestId)return;
+    if(!response.ok)throw new Error(payload.error||"Cinema feed unavailable");
+    const rows=Array.isArray(payload.results)?payload.results:[];
+    if(reset)grid.innerHTML="";
+    if(!rows.length&&reset){cinemaStatus(lang==="en"?"No results found. Try another title.":"ما لقينا نتائج. جرّب عنوانًا ثانيًا.");if(more)more.hidden=true;return}
+    const frag=document.createDocumentFragment();rows.forEach(x=>frag.appendChild(cinemaCard(x)));grid.appendChild(frag);
+    const totalPages=Number(payload.total_pages||1);
+    const stamp=new Date().toLocaleTimeString(lang==="en"?"en-US":"ar-SA",{hour:"2-digit",minute:"2-digit"});
+    cinemaStatus(rows.length+" "+(lang==="en"?"results":"نتيجة")+" · "+(lang==="en"?"Updated":"آخر تحديث")+": "+stamp+" · "+(lang==="en"?"Auto-refresh every 5 minutes":"تحديث تلقائي كل 5 دقائق"));
+    if(more)more.hidden=cinemaPage>=totalPages||rows.length===0;
+    cinemaPage++;
+    cinemaLoaded=true;
+    anim();
+  }catch(err){
+    if(requestId===cinemaRequestId){
+      const message=String(err.message||"");
+      cinemaStatus(message.includes("not configured")?(lang==="en"?"Cinema feed is waiting for its secure TMDB key in Vercel.":"قسم السينما بانتظار إضافة مفتاح TMDB الآمن في Vercel."):(lang==="en"?"Could not load cinema data. Existing results are kept; please retry.":"تعذر تحميل بيانات السينما. سنحتفظ بالنتائج الحالية، جرّب التحديث لاحقًا."));
+      if(more)more.hidden=false;
+    }
+  }finally{
+    if(requestId===cinemaRequestId){cinemaBusy=false;if(more)more.disabled=false}
+  }
+}
+function initCinema(){
+  const search=$("cinemaSearch"),searchBtn=$("cinemaSearchBtn"),refresh=$("cinemaRefresh"),more=$("cinemaMore");
+  if(!search||search.dataset.ready)return;
+  search.dataset.ready="1";
+  const runSearch=()=>{cinemaSearchTerm=search.value.trim();document.querySelectorAll("[data-cinema-feed]").forEach(b=>b.classList.remove("active"));loadCinema(true)};
+  searchBtn.addEventListener("click",runSearch);
+  search.addEventListener("keydown",e=>{if(e.key==="Enter")runSearch()});
+  search.addEventListener("input",()=>{clearTimeout(cinemaDebounce);cinemaDebounce=setTimeout(runSearch,500)});
+  refresh.addEventListener("click",()=>loadCinema(true));
+  more.addEventListener("click",()=>loadCinema(false));
+  document.querySelectorAll("[data-cinema-feed]").forEach(b=>b.addEventListener("click",()=>{cinemaFeed=b.dataset.cinemaFeed;cinemaSearchTerm="";search.value="";document.querySelectorAll("[data-cinema-feed]").forEach(x=>x.classList.toggle("active",x===b));loadCinema(true)}));
+}
+function loadCinemaOnOpen(){initCinema();if(!cinemaLoaded)loadCinema(true)}
+function drawMovies(){initCinema();const g=$("movieGrid");if(g&&!cinemaLoaded)g.innerHTML="";if(!cinemaLoaded)cinemaStatus(lang==="en"?"Open a feed to discover current movies and series.":"اختر تصنيفًا لاكتشاف الأفلام والمسلسلات الحالية.");}
 function drawThemes(){$("themeGrid").innerHTML="";themes.forEach(t=>$("themeGrid").appendChild(makeCard(t)));anim()}
 
 
@@ -523,7 +602,7 @@ function initGamesSearch(){const input=$("gameSearch"),btn=$("gameSearchBtn"),mo
 let gLoaded=false;
 function loadGamesOnOpen(){initGamesSearch();if(!gLoaded){gLoaded=true;loadGames(true)}}
 // Keep the visible Steam library fresh while the page is open. Refreshes pause in background tabs.
-setInterval(()=>{const gamesPage=$("games");if(gamesPage?.classList.contains("show")&&!document.hidden&&!gamesBusy){loadGames(true)}},5*60*1000);
+setInterval(()=>{const gamesPage=$("games");if(gamesPage?.classList.contains("show")&&!document.hidden&&!gamesBusy){loadGames(true)}const cinemaPageEl=$("movies");if(cinemaPageEl?.classList.contains("show")&&!document.hidden&&cinemaLoaded&&!cinemaBusy){loadCinema(true)}},5*60*1000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&$("games")?.classList.contains("show")&&gLoaded&&!gamesBusy){loadGames(true)}});
 
 
