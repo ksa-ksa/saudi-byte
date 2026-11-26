@@ -71,6 +71,21 @@
 .sb-field textarea{min-height:76px;resize:vertical}
 .sb-item-actions{display:flex;gap:6px;flex-wrap:wrap}
 .sb-empty{padding:25px;text-align:center;color:#999;border:1px dashed #3a3a3a;border-radius:12px}
+.sb-analytics-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0}
+.sb-analytics-kpi{background:#111;border:1px solid #292929;border-radius:12px;padding:13px}
+.sb-analytics-kpi small{display:block;color:#999;font-size:11px}
+.sb-analytics-kpi strong{display:block;font-size:23px;margin-top:7px}
+.sb-chart-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.sb-range{display:flex;gap:6px}
+.sb-range button{border:1px solid #333;background:#151515;color:#aaa;padding:8px 12px;border-radius:8px;cursor:pointer;font:600 11px Tahoma}
+.sb-range button.active{background:#351216;border-color:#a3222d;color:#fff}
+.sb-chart{display:flex;align-items:flex-end;gap:5px;height:190px;padding:12px 4px 0;border-bottom:1px solid #333;overflow:hidden}
+.sb-chart-day{flex:1;min-width:0;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:7px}
+.sb-chart-bar{width:min(100%,24px);min-height:3px;border-radius:5px 5px 0 0;background:linear-gradient(180deg,#ff5964,#a90e1b)}
+.sb-chart-label{font-size:9px;color:#888;white-space:nowrap}
+.sb-chart-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;color:#aaa;font-size:11px}
+.sb-chart-legend span:before{content:"";display:inline-block;width:8px;height:8px;border-radius:2px;background:#e52b38;margin-left:6px}
+@media(max-width:520px){.sb-analytics-kpis{grid-template-columns:1fr}.sb-chart{gap:2px;height:160px}.sb-chart-label{font-size:8px}}
 .sb-status{font-size:12px;color:#8ed7a4;margin-top:10px;min-height:18px}
 @media(max-width:800px){.sb-shell{padding:16px}.sb-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.sb-grid2{grid-template-columns:1fr}}
 @media(max-width:520px){.sb-form{grid-template-columns:1fr}.sb-field.full{grid-column:auto}.sb-head h2{font-size:19px}}
@@ -208,7 +223,23 @@ window.sbSupabase = window.supabase.createClient(
    <div class="sb-panel" style="margin-top:14px"><h3>مكتبة المحتوى الإضافي</h3><div class="sb-table-wrap" id="sb-content-table"></div></div>
   </div>
   <div class="sb-page" id="sb-page-analytics">
-   <div class="sb-panel"><h3>إحصائيات العناصر</h3><div class="sb-muted" style="margin-bottom:10px">تعرض هذه الصفحة أحداث الزيارات ومشاهدات التفاصيل ونقرات الروابط المسجلة في Supabase من جميع الأجهزة. الزيارة تمثل جلسة متصفح، وليست شخصاً فريداً.</div><div class="sb-table-wrap" id="sb-stats-table"></div></div>
+   <div class="sb-panel">
+    <h3>ملخص الأداء</h3>
+    <div class="sb-muted">إجمالي الأحداث السحابية المسجلة من جميع الأجهزة.</div>
+    <div class="sb-analytics-kpis">
+     <div class="sb-analytics-kpi"><small>زيارات الموقع</small><strong id="sb-analytics-visits">0</strong></div>
+     <div class="sb-analytics-kpi"><small>مشاهدات التفاصيل</small><strong id="sb-analytics-views">0</strong></div>
+     <div class="sb-analytics-kpi"><small>نقرات الروابط</small><strong id="sb-analytics-clicks">0</strong></div>
+    </div>
+   </div>
+   <div class="sb-panel" style="margin-top:14px">
+    <div class="sb-chart-head"><div><h3 style="margin-bottom:5px">النشاط اليومي</h3><div class="sb-muted">عدد الأحداث المسجلة يومياً</div></div>
+     <div class="sb-range"><button type="button" class="active" data-stats-range="7">7 أيام</button><button type="button" data-stats-range="30">30 يوماً</button></div>
+    </div>
+    <div id="sb-activity-chart" class="sb-chart" aria-label="رسم بياني للنشاط اليومي"></div>
+    <div class="sb-chart-legend"><span>إجمالي الأحداث</span></div>
+   </div>
+   <div class="sb-panel" style="margin-top:14px"><h3>إحصائيات العناصر</h3><div class="sb-muted" style="margin-bottom:10px">مشاهدات التفاصيل ونقرات الروابط لكل عنصر. الزيارة تمثل جلسة متصفح، وليست شخصاً فريداً.</div><div class="sb-table-wrap" id="sb-stats-table"></div></div>
   </div>
   <div class="sb-page" id="sb-page-settings">
    <div class="sb-grid2">
@@ -492,13 +523,26 @@ drawChips();drawApps();drawThemes();drawMovies();updG();document.querySelectorAl
   host.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>editItem(b.dataset.edit));
   host.querySelectorAll("[data-delete]").forEach(b=>b.onclick=()=>deleteItem(b.dataset.delete));
  }
+ let statsRange=7;
  function renderStats(){
   const items=readItems(), byId=new Map(items.map(x=>[String(x.id),x.n])), grouped={};
   cloudEvents.forEach(e=>{const id=String(e.item_key||"site");if(!grouped[id])grouped[id]={views:0,downs:0};if(e.event_type==="view")grouped[id].views++;if(e.event_type==="download")grouped[id].downs++;});
   const rows=Object.entries(grouped).map(([id,v])=>({name:byId.get(id)||id,views:v.views,downs:v.downs})).sort((a,b)=>(b.views+b.downs)-(a.views+a.downs));
   $a("sb-stats-table").innerHTML=`<table><thead><tr><th>العنصر</th><th>مشاهدات التفاصيل</th><th>نقرات الروابط</th></tr></thead><tbody>${rows.slice(0,100).map(x=>`<tr><td>${esc(x.name)}</td><td>${fmtN(x.views)}</td><td>${fmtN(x.downs)}</td></tr>`).join("")}</tbody></table>`;
+  const totals=cloudTotals();
+  $a("sb-analytics-visits").textContent=fmtN(totals.visits);
+  $a("sb-analytics-views").textContent=fmtN(totals.views);
+  $a("sb-analytics-clicks").textContent=fmtN(totals.downloads);
+  const today=new Date();today.setHours(0,0,0,0);
+  const days=Array.from({length:statsRange},(_,i)=>{const d=new Date(today);d.setDate(today.getDate()-statsRange+1+i);return {date:d,count:0};});
+  const dayMap=new Map(days.map(d=>[d.date.toDateString(),d]));
+  cloudEvents.forEach(e=>{const d=new Date(e.created_at);if(Number.isNaN(d.getTime()))return;d.setHours(0,0,0,0);const slot=dayMap.get(d.toDateString());if(slot)slot.count++;});
+  const max=Math.max(1,...days.map(d=>d.count));
+  $a("sb-activity-chart").innerHTML=days.map(d=>{const h=d.count?Math.max(5,Math.round(d.count/max*100)):2;const label=statsRange===7?d.date.toLocaleDateString("ar-SA",{weekday:"short"}):d.date.toLocaleDateString("ar-SA",{day:"numeric",month:"numeric"});return `<div class="sb-chart-day" title="${d.date.toLocaleDateString("ar-SA")}: ${fmtN(d.count)} حدث"><div class="sb-chart-bar" style="height:${h}%"></div><span class="sb-chart-label">${label}</span></div>`;}).join("");
+  document.querySelectorAll("[data-stats-range]").forEach(b=>b.classList.toggle("active",Number(b.dataset.statsRange)===statsRange));
  }
  function refresh(){renderContent();loadCloudEvents().then(()=>{renderOverview();renderStats()}).catch(err=>{$a("sb-recent").textContent="تعذر تحميل الإحصائيات: "+(err.message||"تحقق من صلاحيات site_events");$a("sb-stats-table").textContent="تعذر تحميل الإحصائيات السحابية."})}
+ document.querySelectorAll("[data-stats-range]").forEach(b=>b.addEventListener("click",()=>{statsRange=Number(b.dataset.statsRange)===30?30:7;renderStats()}));
  function resetForm(){ $a("sb-content-form").reset();$a("sb-edit-id").value="";$a("sb-icon").value="🧩";$a("sb-editor-title").textContent="إضافة عنصر جديد إلى دليل البرامج";$a("sb-form-status").textContent=""; }
  function editItem(id){const x=readItems().find(v=>v.id===id);if(!x)return;$a("sb-edit-id").value=x.id;$a("sb-name").value=x.n;$a("sb-category").value=x.c;$a("sb-summary").value=x.s;$a("sb-url").value=x.u;$a("sb-download").value=x.dl||"";$a("sb-icon").value=x.i||"🧩";$a("sb-status").value=x.status;$a("sb-editor-title").textContent="تعديل عنصر المحتوى";document.querySelector('[data-tab="content"]').click();$a("sb-name").focus();}
  async function deleteItem(id){if(!confirm("تأكيد حذف هذا العنصر؟"))return;try{await requireAdmin();const {error}=await window.sbSupabase.from("apps").delete().eq("id",id);if(error)throw error;writeItems(readItems().filter(x=>x.id!==id));refresh();if(typeof drawApps==="function")drawApps();$a("sb-form-status").textContent="تم حذف العنصر من قاعدة البيانات.";}catch(err){$a("sb-form-status").textContent="تعذر الحذف: "+(err.message||"خطأ غير معروف");}}
