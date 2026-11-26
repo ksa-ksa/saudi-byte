@@ -753,7 +753,7 @@ drawChips();drawApps();drawThemes();drawMovies();updG();document.querySelectorAl
     const rating=Number(document.getElementById("review-rating").value),reviewText=document.getElementById("review-text").value.trim(),visitorName=document.getElementById("review-name").value.trim()||"زائر";
     if(!Number.isInteger(rating)||rating<1||rating>5)throw new Error("اختر تقييماً من نجمة إلى خمس نجوم.");
     if(reviewText.length<8||reviewText.length>600)throw new Error("المراجعة يجب أن تكون بين 8 و600 حرف.");
-    const result=await window.sbSupabase.from("reviews").insert({item_type:"content",item_key:key,visitor_name:visitorName,rating:rating,review_text:reviewText});
+    const result=await window.sbSupabase.from("reviews").insert({item_type:"content",item_id:crypto.randomUUID(),item_key:key,visitor_name:visitorName,rating:rating,review_text:reviewText});
     if(result.error)throw result.error;
     form.reset();note.textContent="تم نشر تقييمك، شكراً لمشاركتك!";await load();
    }catch(err){note.textContent=err.message||"تعذر إرسال التقييم. حاول مرة أخرى."}
