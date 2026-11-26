@@ -80,9 +80,16 @@
 .sb-range button{border:1px solid #333;background:#151515;color:#aaa;padding:8px 12px;border-radius:8px;cursor:pointer;font:600 11px Tahoma}
 .sb-range button.active{background:#351216;border-color:#a3222d;color:#fff}
 .sb-chart{display:flex;align-items:flex-end;gap:5px;height:190px;padding:12px 4px 0;border-bottom:1px solid #333;overflow:hidden}
-.sb-chart-day{flex:1;min-width:0;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:7px}
-.sb-chart-bar{width:min(100%,24px);min-height:3px;border-radius:5px 5px 0 0;background:linear-gradient(180deg,#ff5964,#a90e1b)}
+.sb-chart-day{flex:1 1 0;min-width:0;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:5px}
+.sb-chart-value{font-size:10px;line-height:1;color:#eee;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.sb-chart-bar{flex:0 0 auto;width:min(100%,24px);min-height:3px;border-radius:5px 5px 0 0;background:linear-gradient(180deg,#ff5964,#a90e1b)}
 .sb-chart-label{font-size:9px;color:#888;white-space:nowrap}
+.sb-top-list{display:grid;gap:8px}
+.sb-top-item{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;gap:10px;padding:10px 12px;background:#111;border:1px solid #292929;border-radius:10px}
+.sb-top-rank{display:grid;place-items:center;width:26px;height:26px;border-radius:8px;background:#351216;color:#ff7881;font-size:11px;font-weight:800}
+.sb-top-name{font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-top-meta{font-size:10px;color:#999;margin-top:3px}
+.sb-top-total{font-size:14px;font-weight:800;font-variant-numeric:tabular-nums;color:#fff}
 .sb-chart-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;color:#aaa;font-size:11px}
 .sb-chart-legend span:before{content:"";display:inline-block;width:8px;height:8px;border-radius:2px;background:#e52b38;margin-left:6px}
 @media(max-width:520px){.sb-analytics-kpis{grid-template-columns:1fr}.sb-chart{gap:2px;height:160px}.sb-chart-label{font-size:8px}}
@@ -239,6 +246,7 @@ window.sbSupabase = window.supabase.createClient(
     <div id="sb-activity-chart" class="sb-chart" aria-label="رسم بياني للنشاط اليومي"></div>
     <div class="sb-chart-legend"><span>إجمالي الأحداث</span></div>
    </div>
+   <div class="sb-panel" style="margin-top:14px"><div class="sb-chart-head"><div><h3 style="margin-bottom:5px">الأكثر تفاعلاً</h3><div class="sb-muted">أفضل 5 عناصر حسب مجموع المشاهدات ونقرات الروابط.</div></div></div><div class="sb-table-wrap" id="sb-top-items"></div></div>
    <div class="sb-panel" style="margin-top:14px"><h3>إحصائيات العناصر</h3><div class="sb-muted" style="margin-bottom:10px">مشاهدات التفاصيل ونقرات الروابط لكل عنصر. الزيارة تمثل جلسة متصفح، وليست شخصاً فريداً.</div><div class="sb-table-wrap" id="sb-stats-table"></div></div>
   </div>
   <div class="sb-page" id="sb-page-settings">
@@ -527,7 +535,9 @@ drawChips();drawApps();drawThemes();drawMovies();updG();document.querySelectorAl
  function renderStats(){
   const items=readItems(), byId=new Map(items.map(x=>[String(x.id),x.n])), grouped={};
   cloudEvents.forEach(e=>{const id=String(e.item_key||"site");if(!grouped[id])grouped[id]={views:0,downs:0};if(e.event_type==="view")grouped[id].views++;if(e.event_type==="download")grouped[id].downs++;});
-  const rows=Object.entries(grouped).map(([id,v])=>({name:byId.get(id)||id,views:v.views,downs:v.downs})).sort((a,b)=>(b.views+b.downs)-(a.views+a.downs));
+  const rows=Object.entries(grouped).map(([id,v])=>({id,name:byId.get(id)||id,views:v.views,downs:v.downs,total:v.views+v.downs})).filter(x=>x.total>0).sort((a,b)=>b.total-a.total);
+  const topHost=$a("sb-top-items");
+  topHost.innerHTML=rows.length?'<div class="sb-top-list">'+rows.slice(0,5).map((x,i)=>'<div class="sb-top-item"><span class="sb-top-rank">'+(i+1)+'</span><div><div class="sb-top-name">'+esc(x.name)+'</div><div class="sb-top-meta">'+fmtN(x.views)+' مشاهدة · '+fmtN(x.downs)+' نقرة</div></div><strong class="sb-top-total">'+fmtN(x.total)+'</strong></div>').join("")+'</div>':'<div class="sb-empty">لا توجد تفاعلات كافية لعرض ترتيب العناصر بعد.</div>';
   $a("sb-stats-table").innerHTML=`<table><thead><tr><th>العنصر</th><th>مشاهدات التفاصيل</th><th>نقرات الروابط</th></tr></thead><tbody>${rows.slice(0,100).map(x=>`<tr><td>${esc(x.name)}</td><td>${fmtN(x.views)}</td><td>${fmtN(x.downs)}</td></tr>`).join("")}</tbody></table>`;
   const totals=cloudTotals();
   $a("sb-analytics-visits").textContent=fmtN(totals.visits);
@@ -538,7 +548,7 @@ drawChips();drawApps();drawThemes();drawMovies();updG();document.querySelectorAl
   const dayMap=new Map(days.map(d=>[d.date.toDateString(),d]));
   cloudEvents.forEach(e=>{const d=new Date(e.created_at);if(Number.isNaN(d.getTime()))return;d.setHours(0,0,0,0);const slot=dayMap.get(d.toDateString());if(slot)slot.count++;});
   const max=Math.max(1,...days.map(d=>d.count));
-  $a("sb-activity-chart").innerHTML=days.map(d=>{const h=d.count?Math.max(5,Math.round(d.count/max*100)):2;const label=statsRange===7?d.date.toLocaleDateString("ar-SA",{weekday:"short"}):d.date.toLocaleDateString("ar-SA",{day:"numeric",month:"numeric"});return `<div class="sb-chart-day" title="${d.date.toLocaleDateString("ar-SA")}: ${fmtN(d.count)} حدث"><div class="sb-chart-bar" style="height:${h}%"></div><span class="sb-chart-label">${label}</span></div>`;}).join("");
+  $a("sb-activity-chart").innerHTML=days.map(d=>{const h=d.count?Math.max(5,Math.round(d.count/max*100)):2;const label=statsRange===7?d.date.toLocaleDateString("ar-SA",{weekday:"short"}):d.date.toLocaleDateString("ar-SA",{day:"numeric",month:"numeric"});return `<div class="sb-chart-day" title="${d.date.toLocaleDateString("ar-SA")}: ${fmtN(d.count)} حدث"><span class="sb-chart-value">${fmtN(d.count)}</span><div class="sb-chart-bar" style="height:${h}%"></div><span class="sb-chart-label">${label}</span></div>`;}).join("");
   document.querySelectorAll("[data-stats-range]").forEach(b=>b.classList.toggle("active",Number(b.dataset.statsRange)===statsRange));
  }
  function refresh(){renderContent();loadCloudEvents().then(()=>{renderOverview();renderStats()}).catch(err=>{$a("sb-recent").textContent="تعذر تحميل الإحصائيات: "+(err.message||"تحقق من صلاحيات site_events");$a("sb-stats-table").textContent="تعذر تحميل الإحصائيات السحابية."})}
