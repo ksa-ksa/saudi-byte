@@ -493,7 +493,7 @@ drawChips();drawApps();drawThemes();drawMovies();updG();document.querySelectorAl
   host.querySelectorAll("[data-delete]").forEach(b=>b.onclick=()=>deleteItem(b.dataset.delete));
  }
  function renderStats(){
-  const items=catalog(), byId=new Map(items.map(x=>[String(x.id),x.n])), grouped={};
+  const items=readItems(), byId=new Map(items.map(x=>[String(x.id),x.n])), grouped={};
   cloudEvents.forEach(e=>{const id=String(e.item_key||"site");if(!grouped[id])grouped[id]={views:0,downs:0};if(e.event_type==="view")grouped[id].views++;if(e.event_type==="download")grouped[id].downs++;});
   const rows=Object.entries(grouped).map(([id,v])=>({name:byId.get(id)||id,views:v.views,downs:v.downs})).sort((a,b)=>(b.views+b.downs)-(a.views+a.downs));
   $a("sb-stats-table").innerHTML=`<table><thead><tr><th>العنصر</th><th>مشاهدات التفاصيل</th><th>نقرات الروابط</th></tr></thead><tbody>${rows.slice(0,100).map(x=>`<tr><td>${esc(x.name)}</td><td>${fmtN(x.views)}</td><td>${fmtN(x.downs)}</td></tr>`).join("")}</tbody></table>`;
