@@ -682,5 +682,22 @@ drawChips();drawApps();drawThemes();drawMovies();updG();document.querySelectorAl
 })();
 
 </script>
+
+<script id="sb-external-link-fix">
+(function(){
+  // Keep external destination buttons clickable across every directory section.
+  document.addEventListener("click",function(e){
+    const link=e.target&&e.target.closest?e.target.closest(".cacts a[href]"):null;
+    if(!link)return;
+    const raw=link.getAttribute("href");
+    if(!raw)return;
+    let url;
+    try{url=new URL(raw,window.location.href)}catch(_){return}
+    if(url.protocol!=="https:"&&url.protocol!=="http:")return;
+    e.preventDefault();
+    window.open(url.href,"_blank","noopener,noreferrer");
+  },true);
+})();
+</script>
 </body>
 </html>
