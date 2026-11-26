@@ -264,6 +264,23 @@ window.sbSupabase = window.supabase.createClient(
  </div>
 </section>
 
+
+<script id="sb-admin-emergency-bridge">
+(function(){
+ const launch=document.getElementById("sb-admin-launch");
+ const panel=document.getElementById("sb-admin");
+ const gate=document.getElementById("sb-auth-gate");
+ const status=document.getElementById("sb-auth-status");
+ if(!launch||!panel||!gate)return;
+ launch.addEventListener("click",function(){
+  panel.classList.add("open");
+  panel.setAttribute("aria-hidden","false");
+  gate.style.display="flex";
+  if(status){status.style.color="#ddd";status.textContent="سجّل الدخول بحساب المدير للمتابعة.";}
+ },true);
+})();
+</script>
+
 <script>
 const cats=["الكل","الذكاء الاصطناعي","الحماية والأمان","الصيانة والتنظيف","التصفح والإنترنت","المكتب والإنتاجية","الوسائط والترفيه","الأدوات المساعدة","الألعاب والمودات","التطوير والبرمجة"];
 const apps=[
