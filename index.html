@@ -512,7 +512,7 @@ drawChips();drawApps();drawThemes();drawMovies();updG();document.querySelectorAl
  $a("sb-content-form").addEventListener("submit",async e=>{
   e.preventDefault();const status=$a("sb-form-status");status.textContent="جارٍ الحفظ في قاعدة البيانات...";
   const name=$a("sb-name").value.trim(),url=$a("sb-url").value.trim(),download=$a("sb-download").value.trim();
-  if(!name||!/^https?:\\/\\//i.test(url)||(download&&!/^https?:\\/\\//i.test(download))){status.textContent="أدخل الاسم وروابط تبدأ بـ https:// أو http://";return}
+  if(!name||!(url.toLowerCase().startsWith("http://")||url.toLowerCase().startsWith("https://"))||(download&&!(download.toLowerCase().startsWith("http://")||download.toLowerCase().startsWith("https://")))){status.textContent="أدخل الاسم وروابط تبدأ بـ https:// أو http://";return}
   try{
    await requireAdmin();
    const oldId=$a("sb-edit-id").value,id=oldId||newId();
