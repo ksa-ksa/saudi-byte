@@ -133,17 +133,42 @@
 </div></div>
 <div class="modal" id="modal"><div class="box" id="box"></div></div>
 
+
+<div id="sb-auth-gate" style="display:none;position:fixed;inset:0;z-index:10001;background:#050505ed;backdrop-filter:blur(10px);align-items:center;justify-content:center;padding:20px">
+ <form id="sb-auth-form" style="width:min(420px,100%);background:#151515;border:1px solid #383838;border-radius:18px;padding:24px;color:#fff;font-family:Tahoma,Arial">
+  <h2 style="margin-bottom:8px">دخول إدارة SAUDI BYTE</h2>
+  <p style="color:#aaa;font-size:12px;line-height:1.8;margin-bottom:18px">سجّل الدخول بحساب المدير الذي أنشأته في Supabase.</p>
+  <label style="display:block;font-size:12px;margin:10px 0 6px">البريد الإلكتروني</label>
+  <input id="sb-auth-email" type="email" autocomplete="username" required style="width:100%;padding:12px;border-radius:9px;background:#090909;border:1px solid #444;color:white">
+  <label style="display:block;font-size:12px;margin:12px 0 6px">كلمة المرور</label>
+  <input id="sb-auth-password" type="password" autocomplete="current-password" required style="width:100%;padding:12px;border-radius:9px;background:#090909;border:1px solid #444;color:white">
+  <div id="sb-auth-status" role="status" style="font-size:12px;color:#ff747b;min-height:24px;margin-top:10px"></div>
+  <div style="display:flex;gap:8px;justify-content:flex-start">
+   <button type="submit" style="background:#e50914;color:white;border:0;border-radius:9px;padding:11px 18px;font-weight:bold;cursor:pointer">تسجيل الدخول</button>
+   <button type="button" id="sb-auth-cancel" style="background:#292929;color:white;border:0;border-radius:9px;padding:11px 18px;cursor:pointer">إلغاء</button>
+  </div>
+ </form>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+window.sbSupabase = window.supabase.createClient(
+ 'https://fsctbkyzgckbuxejiaxe.supabase.co',
+ 'sb_publishable_XpTnggE5lZfaG334Il-eIg_utGn32dI'
+);
+</script>
+
 <button id="sb-admin-launch" type="button" aria-label="فتح لوحة الإدارة">⚙ الإدارة</button>
 <section id="sb-admin" aria-hidden="true">
  <div class="sb-shell">
   <header class="sb-head">
    <div class="sb-brand"><div class="sb-mark">SB</div><div><h2>SAUDI BYTE <span style="color:#ef3c48">ADMIN</span></h2><div class="sb-sub">مركز إدارة المحتوى والإحصائيات</div></div></div>
    <div class="sb-actions">
+    <button class="sb-btn" id="sb-logout" type="button">تسجيل الخروج</button>
     <button class="sb-btn" id="sb-export">تصدير نسخة احتياطية</button>
     <button class="sb-btn" id="sb-close">العودة للموقع ✕</button>
    </div>
   </header>
-  <div class="sb-notice"><b>وضع محلي تجريبي:</b> هذه اللوحة تحفظ المحتوى والإحصائيات في متصفح هذا الجهاز عبر localStorage. لا يوجد حالياً تسجيل دخول آمن أو قاعدة بيانات مشتركة أو صلاحيات مستخدمين. لا ترفعها كلوحة إدارة عامة قبل ربط Backend وتفعيل المصادقة.</div>
+  <div class="sb-notice"><b>وضع الإدارة المحمي:</b> تسجيل الدخول والتحقق من صلاحية المدير يتمان عبر Supabase. بيانات إدارة المحتوى والإحصائيات في هذه النسخة لا تزال محلية، وسيتم ربط مزامنتها بقاعدة البيانات في خطوة لاحقة.</div>
   <nav class="sb-tabs">
    <button class="sb-tab active" data-tab="overview">نظرة عامة</button>
    <button class="sb-tab" data-tab="content">إدارة المحتوى</button>
@@ -456,9 +481,26 @@ drawChips();drawApps();drawThemes();drawMovies();updG();document.querySelectorAl
  function resetForm(){ $a("sb-content-form").reset();$a("sb-edit-id").value="";$a("sb-icon").value="🧩";$a("sb-editor-title").textContent="إضافة عنصر جديد إلى دليل البرامج";$a("sb-form-status").textContent=""; }
  function editItem(id){const x=readItems().find(v=>v.id===id);if(!x)return;$a("sb-edit-id").value=x.id;$a("sb-name").value=x.n;$a("sb-category").value=x.c;$a("sb-summary").value=x.s;$a("sb-url").value=x.u;$a("sb-download").value=x.dl||"";$a("sb-icon").value=x.i||"🧩";$a("sb-status").value=x.status;$a("sb-editor-title").textContent="تعديل عنصر المحتوى";document.querySelector('[data-tab="content"]').click();$a("sb-name").focus();}
  function deleteItem(id){if(!confirm("تأكيد حذف هذا العنصر؟"))return;writeItems(readItems().filter(x=>x.id!==id));refresh();if(typeof drawApps==="function")drawApps();}
- function openAdmin(){ $a("sb-admin").classList.add("open");$a("sb-admin").setAttribute("aria-hidden","false");refresh();history.replaceState(null,"",location.pathname+location.search+"#admin");}
+ async function openAdmin(){
+  const {data:{session}} = await window.sbSupabase.auth.getSession();
+  if(!session){$a("sb-auth-gate").style.display="flex";$a("sb-auth-email").focus();return;}
+  const {data:isAdmin,error} = await window.sbSupabase.rpc("is_admin");
+  if(error||!isAdmin){await window.sbSupabase.auth.signOut();$a("sb-auth-status").textContent="هذا الحساب ليس ضمن المدراء."; $a("sb-auth-gate").style.display="flex";return;}
+  $a("sb-admin").classList.add("open");$a("sb-admin").setAttribute("aria-hidden","false");refresh();history.replaceState(null,"",location.pathname+location.search+"#admin");
+}
  function closeAdmin(){ $a("sb-admin").classList.remove("open");$a("sb-admin").setAttribute("aria-hidden","true");history.replaceState(null,"",location.pathname+location.search);}
  $a("sb-admin-launch").addEventListener("click",openAdmin);$a("sb-close").addEventListener("click",closeAdmin);
+ $a("sb-auth-cancel").addEventListener("click",()=>$a("sb-auth-gate").style.display="none");
+ $a("sb-auth-form").addEventListener("submit",async e=>{
+  e.preventDefault();const status=$a("sb-auth-status");status.style.color="#ff747b";status.textContent="جارٍ التحقق من الحساب...";
+  const {error}=await window.sbSupabase.auth.signInWithPassword({email:$a("sb-auth-email").value.trim(),password:$a("sb-auth-password").value});
+  if(error){status.textContent="تعذر تسجيل الدخول. تحقق من البريد وكلمة المرور.";return;}
+  const {data:isAdmin,error:checkError}=await window.sbSupabase.rpc("is_admin");
+  if(checkError||!isAdmin){await window.sbSupabase.auth.signOut();status.textContent="تم رفض الدخول: الحساب غير مسجل كمدير.";return;}
+  $a("sb-auth-password").value="";$a("sb-auth-gate").style.display="none";status.textContent="";openAdmin();
+ });
+ $a("sb-logout").addEventListener("click",async()=>{await window.sbSupabase.auth.signOut();closeAdmin();$a("sb-auth-status").textContent="تم تسجيل الخروج.";});
+
  document.querySelectorAll(".sb-tab").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".sb-tab").forEach(x=>x.classList.toggle("active",x===b));document.querySelectorAll(".sb-page").forEach(x=>x.classList.toggle("active",x.id==="sb-page-"+b.dataset.tab));}));
  $a("sb-content-form").addEventListener("submit",e=>{
   e.preventDefault();const name=$a("sb-name").value.trim(),url=$a("sb-url").value.trim(),download=$a("sb-download").value.trim();
