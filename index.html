@@ -964,7 +964,7 @@ const animeObserver=new MutationObserver(()=>{if($("anime")?.classList.contains(
  }
  function summary(){
   const rows=fields.map(([key,ar,en])=> (isEn()?en:ar)+": "+get(key).name+" ("+get(key).price+" SAR)");
-  const cpu=get("cpu"),board=get("board"),ram=get("ram"),gpu=get("gpu"),psu=get("psu");
+  const cpu=get("cpu"),board=get("board"),ram=get("ram"),cooler=get("cooler"),gpu=get("gpu"),psu=get("psu");
   const required=Math.ceil((cpu.watts+gpu.watts+150)*1.25/50)*50;
   const issues=[];if(cpu.socket!==board.socket)issues.push(isEn()?"CPU socket mismatch":"تعارض مقبس المعالج");if(board.memory!==ram.memory)issues.push(isEn()?"RAM type mismatch":"تعارض نوع الذاكرة");if(cooler.capacity<cpu.watts)issues.push(isEn()?"CPU cooler may be insufficient":"قدرة مبرد المعالج قد لا تكفي");if(psu.watts<required)issues.push(isEn()?"PSU wattage may be low":"قدرة مزود الطاقة قد تكون منخفضة");
   return "SAUDI BYTE PC BUILD\n"+rows.join("\n")+"\nTotal: "+fmt(fields.reduce((n,[key])=>n+get(key).price,0))+" SAR\n"+(issues.length?"Warnings: "+issues.join(", "):"Basic compatibility checks passed.")+"\nPrices are estimates, not live retailer quotes.";
