@@ -131,12 +131,23 @@ input,select,textarea{max-width:100%;min-width:0}
 }
 @media(max-width:360px){.launch-grid{grid-template-columns:minmax(0,1fr)}}
 </style>
+<style id="sb-mobile-menu-style">
+#sb-mobile-menu{display:none}
+@media(max-width:700px){
+#sb-mobile-menu{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:44px;border:1px solid #773036;border-radius:10px;background:#211215;color:#fff;font-weight:bold;cursor:pointer}
+#sb-mobile-menu[aria-expanded="false"] + #tabs{display:none}
+#sb-mobile-menu[aria-expanded="true"] + #tabs{display:grid;margin-top:10px}
+#tabs button{display:flex;align-items:center;gap:8px}
+#tabs button:focus-visible,#sb-mobile-menu:focus-visible{outline:2px solid #ff5964;outline-offset:2px}
+}
+</style>
 </head>
 <body>
 <div class="shell">
 <aside class="sidebar">
   <div class="brand"><div class="brand-mark">B</div><div><b>SAUDI BYTE</b><small>GAMING &amp; DIGITAL HUB</small></div></div>
   <div class="nav-label">WORKSPACE</div>
+  <button type="button" id="sb-mobile-menu" aria-controls="tabs" aria-expanded="false"><span aria-hidden="true">☰</span> <span data-ar="الأقسام" data-en="Sections">الأقسام</span></button>
   <nav class="tabs" id="tabs">
     <button class="active" data-p="home"><span class="nav-ico">⌂</span><span data-ar="الرئيسية" data-en="Overview">الرئيسية</span></button>
     <button data-p="games"><span class="nav-ico">◈</span><span data-ar="مكتبة الألعاب" data-en="Game Library">مكتبة الألعاب</span></button>
@@ -858,5 +869,8 @@ const animeObserver=new MutationObserver(()=>{if($("anime")?.classList.contains(
 })();
 
 
+<script id="sb-mobile-menu-script">
+(function(){const toggle=document.getElementById('sb-mobile-menu'),nav=document.getElementById('tabs');if(!toggle||!nav)return;function setOpen(open){toggle.setAttribute('aria-expanded',String(open));}toggle.addEventListener('click',function(){setOpen(toggle.getAttribute('aria-expanded')!=='true');});nav.addEventListener('click',function(e){if(e.target.closest('button[data-p]'))setOpen(false);});document.addEventListener('keydown',function(e){if(e.key==='Escape'&&toggle.getAttribute('aria-expanded')==='true'){setOpen(false);toggle.focus();}});})();
+</script>
 </body>
 </html>
