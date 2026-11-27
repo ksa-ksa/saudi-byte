@@ -786,7 +786,7 @@ drawChips();drawApps();drawThemes();drawMovies();updG();document.querySelectorAl
  }
  function closeAdmin(){ $a("sb-admin").classList.remove("open");$a("sb-admin").setAttribute("aria-hidden","true");history.replaceState(null,"",location.pathname+location.search);}
  $a("sb-admin-launch").addEventListener("click",openAdmin);$a("sb-close").addEventListener("click",closeAdmin);
- $a("sb-auth-cancel").addEventListener("click",()=>$a("sb-auth-gate").style.display="none");
+ $a("sb-auth-cancel").addEventListener("click",()=>closeAdmin());
  $a("sb-auth-form").addEventListener("submit",async e=>{
   e.preventDefault();const status=$a("sb-auth-status");status.style.color="#ff747b";status.textContent="جارٍ التحقق من الحساب...";
   const {error}=await window.sbSupabase.auth.signInWithPassword({email:$a("sb-auth-email").value.trim(),password:$a("sb-auth-password").value});
