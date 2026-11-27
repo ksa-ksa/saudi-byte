@@ -152,6 +152,23 @@
 }
 </style>
 
+<style id="sb-pc-builder-css">
+.pc-builder-hero{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:28px 30px;border:1px solid #392024;border-radius:18px;background:radial-gradient(circle at 85% 15%,#4b1118 0,transparent 38%),linear-gradient(120deg,#171313,#0d0d0d);margin-bottom:22px}
+.pc-builder-hero h2{font-size:clamp(24px,4vw,36px);margin:9px 0}.pc-builder-hero p{color:#aaa;line-height:1.8;font-size:13px;max-width:650px}
+.pc-market-links{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}.pc-market-links a{font-size:11px;color:#ff777e;text-decoration:none;border:1px solid #51252a;background:#211416;border-radius:8px;padding:8px 11px}.pc-market-links a:hover{background:#35191d}
+.pc-builder-mark{font-size:15px;letter-spacing:4px;color:#aaa;text-align:center;border:1px solid #5b272d;border-radius:16px;padding:18px 22px;transform:rotate(-5deg)}.pc-builder-mark b{color:#ff414a;font-size:24px}
+.pc-builder-layout{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(270px,.85fr);gap:18px;align-items:start}
+.pc-builder-parts,.pc-builder-summary{background:#111;border:1px solid #292929;border-radius:16px;padding:20px}
+.pc-builder-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}.pc-builder-heading h3,.pc-builder-summary h3{font-size:19px;margin-top:6px}
+.pc-reset{background:#1b1b1b;border:1px solid #393939;color:#ddd;border-radius:8px;padding:8px 12px;cursor:pointer;font:12px Tahoma}
+.pc-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.pc-field{background:#171717;border:1px solid #2b2b2b;border-radius:11px;padding:12px;min-width:0}.pc-field label{display:block;color:#ddd;font-size:12px;margin-bottom:9px}.pc-field select{width:100%;background:#0c0c0c;border:1px solid #393939;border-radius:8px;color:#fff;padding:11px 9px;font:12px Tahoma;outline:none}.pc-field select:focus{border-color:#e50914}.pc-field small{display:block;color:#888;font-size:10px;margin-top:7px}
+.pc-builder-summary{position:sticky;top:18px}.pc-total-label{color:#999;font-size:12px;margin-top:20px}.pc-total{font-size:32px;font-weight:900;color:#fff;margin:5px 0 14px}.pc-total small{font-size:11px;color:#aaa}
+.pc-check{display:grid;gap:7px;margin:12px 0}.pc-check-item{font-size:11px;line-height:1.7;padding:9px 10px;border-radius:8px;background:#172019;color:#a9e6b6;border:1px solid #294b32}.pc-check-item.warn{background:#26191a;color:#ffb4b8;border-color:#633035}.pc-check-item.info{background:#191b20;color:#b8c6db;border-color:#343d4c}
+.pc-parts-list{border-top:1px solid #292929;margin-top:14px;padding-top:8px}.pc-part-row{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #222;font-size:11px}.pc-part-row span:first-child{color:#aaa}.pc-part-row b{color:#eee;text-align:left}.pc-copy{width:100%;margin-top:16px;cursor:pointer}.pc-disclaimer{font-size:10px;color:#858585;line-height:1.8;margin-top:12px}
+@media(max-width:850px){.pc-builder-layout{grid-template-columns:1fr}.pc-builder-summary{position:static}}
+@media(max-width:560px){.pc-builder-hero{padding:21px 18px}.pc-builder-mark{display:none}.pc-builder-parts,.pc-builder-summary{padding:15px}.pc-fields{grid-template-columns:1fr}.pc-builder-heading h3{font-size:17px}}
+</style>
 </head>
 <body>
 <div class="shell">
@@ -171,6 +188,7 @@
     <button data-p="upcoming"><span class="nav-ico">◷</span><span data-ar="الإصدارات القادمة" data-en="Upcoming Games">الإصدارات القادمة</span></button>
     <button data-p="guides"><span class="nav-ico">▤</span><span data-ar="الأدلة والحلول" data-en="Game Guides">الأدلة والحلول</span></button>
     <button data-p="lab"><span class="nav-ico">⚙</span><span data-ar="مختبر الألعاب" data-en="Game Lab">مختبر الألعاب</span></button>
+    <button data-p="pcbuilder"><span class="nav-ico">🖥</span><span data-ar="PC Builder" data-en="PC Builder">PC Builder</span></button>
     <button data-p="trending"><span class="nav-ico">🔥</span><span data-ar="المودات الرائجة" data-en="Trending Mods">المودات الرائجة</span></button>
     <button data-p="anime"><span class="nav-ico">✦</span><span data-ar="SAUDI ANIME" data-en="SAUDI ANIME">SAUDI ANIME</span></button>
   </nav>
@@ -253,6 +271,26 @@
     <section class="page" id="guides"><div class="section-head"><div><div class="section-kicker">WALKTHROUGHS & TIPS</div><h2 data-ar="الأدلة والحلول" data-en="Game Guides">الأدلة والحلول</h2><p class="note" data-ar="مصادر للأدلة وحلول المهمات والزعماء والأسرار." data-en="Guides for quests, bosses, secrets and walkthroughs.">مصادر للأدلة وحلول المهمات والزعماء والأسرار.</p></div></div><div class="grid" id="guidesGrid"></div></section>
     <section class="page" id="lab"><div class="section-head"><div><div class="section-kicker">PERFORMANCE & HARDWARE</div><h2 data-ar="مختبر الألعاب" data-en="Game Lab">مختبر الألعاب</h2><p class="note" data-ar="تحقق من متطلبات التشغيل وقارن مواصفات العتاد." data-en="Check system requirements and compare PC hardware.">تحقق من متطلبات التشغيل وقارن مواصفات العتاد.</p></div></div><div class="grid" id="labGrid"></div></section>
     <section class="page" id="trending"><div class="section-head"><div><div class="section-kicker">TRENDING MODS</div><h2 data-ar="المودات الرائجة" data-en="Trending Mods">المودات الرائجة</h2><p class="note" data-ar="اكتشف المودات والمحتوى الأكثر رواجًا من مجتمعات التعديل." data-en="Discover popular mods from leading modding communities.">اكتشف المودات والمحتوى الأكثر رواجًا من مجتمعات التعديل.</p></div></div><div class="grid" id="trendingGrid"></div></section>
+    <section class="page" id="pcbuilder">
+      <div class="pc-builder-hero">
+        <div><div class="section-kicker">SAUDI BYTE / PC BUILDER</div><h2 data-ar="ابنِ تجميعتك، قطعة قطعة." data-en="Build your PC, piece by piece.">ابنِ تجميعتك، قطعة قطعة.</h2><p data-ar="اختر القطع، تابع السعر التقديري، واكتشف تعارضات التوافق قبل الشراء." data-en="Choose your parts, track the estimated cost, and catch compatibility issues before buying.">اختر القطع، تابع السعر التقديري، واكتشف تعارضات التوافق قبل الشراء.</p><div class="pc-market-links"><a href="https://priceteq.com/sa/pc-parts" target="_blank" rel="noopener noreferrer">مقارنة أسعار القطع في السعودية ↗</a><a href="https://saudipcprice.com/en" target="_blank" rel="noopener noreferrer">SaudiPCPrice ↗</a></div></div>
+        <div class="pc-builder-mark">BYTE<br><b>BUILD</b></div>
+      </div>
+      <div class="pc-builder-layout">
+        <div class="pc-builder-parts">
+          <div class="pc-builder-heading"><div><span class="section-kicker">COMPONENT SELECTOR</span><h3 data-ar="مكوّنات التجميعة" data-en="Build components">مكوّنات التجميعة</h3></div><button class="pc-reset" id="pcReset" type="button" data-ar="إعادة ضبط" data-en="Reset">إعادة ضبط</button></div>
+          <div class="pc-fields" id="pcFields"></div>
+        </div>
+        <aside class="pc-builder-summary">
+          <span class="section-kicker">YOUR BUILD</span><h3 data-ar="ملخص التجميعة" data-en="Build summary">ملخص التجميعة</h3>
+          <div class="pc-total-label" data-ar="السعر التقديري" data-en="Estimated total">السعر التقديري</div><div class="pc-total" id="pcTotal">0 <small>SAR</small></div>
+          <div class="pc-check" id="pcCheck" aria-live="polite"></div>
+          <div class="pc-parts-list" id="pcPartsList"></div>
+          <button class="btn btn-red pc-copy" id="pcCopy" type="button" data-ar="نسخ التجميعة" data-en="Copy build">نسخ التجميعة</button>
+          <p class="pc-disclaimer" data-ar="الأسعار تقديرية للتخطيط وليست عروضًا لحظية. تحقق من السعر والتوفر والتوافق النهائي لدى المتجر قبل الشراء." data-en="Prices are planning estimates, not live quotes. Confirm current pricing, stock, and final compatibility with the retailer before purchase.">الأسعار تقديرية للتخطيط وليست عروضًا لحظية. تحقق من السعر والتوفر والتوافق النهائي لدى المتجر قبل الشراء.</p>
+        </aside>
+      </div>
+    </section>
     <section class="page" id="anime">
       <div class="sa-anime-hero">
         <div class="sa-anime-copy"><div class="sa-anime-kicker">SAUDI BYTE <span>/</span> ANIME UNIVERSE</div>
@@ -555,7 +593,7 @@ document.documentElement.lang=lang;document.documentElement.dir=lang==="en"?"ltr
  const text=(sel,key)=>{const el=document.querySelector(sel);if(el)el.textContent=tr(key)};
  
  document.querySelectorAll(".gstats .gs .lb").forEach((el,i)=>el.textContent=lang==="en"?["Views","Downloads","Likes"][i]:["مشاهدة","تحميل","إعجاب"][i]);
- const labels={home:lang==="en"?"Overview":"الرئيسية",games:lang==="en"?"Game Library":"مكتبة الألعاب",mods:lang==="en"?"Mod Workshop":"ورشة المودات",apps:lang==="en"?"Software Vault":"مركز البرامج",movies:lang==="en"?"Cinema":"سينما",themes:lang==="en"?"Them PC":"Them PC",free:lang==="en"?"Free Games":"ألعاب مجانية",deals:lang==="en"?"Steam Deals":"عروض Steam",upcoming:lang==="en"?"Upcoming Games":"الإصدارات القادمة",guides:lang==="en"?"Game Guides":"الأدلة والحلول",lab:lang==="en"?"Game Lab":"مختبر الألعاب",trending:lang==="en"?"Trending Mods":"المودات الرائجة",tv:lang==="en"?"Live TV":"التلفزيون المباشر",anime:"SAUDI ANIME"};document.querySelectorAll("#tabs button").forEach(b=>{const el=b.querySelector("span:last-child");if(el)el.textContent=labels[b.dataset.p]||el.textContent});document.querySelectorAll("[data-ar][data-en]").forEach(el=>{el.innerHTML=lang==="en"?el.dataset.en:el.dataset.ar});const crumb=document.getElementById("crumbText");if(crumb)crumb.textContent=labels[document.querySelector("#tabs button.active")?.dataset.p||"home"];
+ const labels={home:lang==="en"?"Overview":"الرئيسية",games:lang==="en"?"Game Library":"مكتبة الألعاب",mods:lang==="en"?"Mod Workshop":"ورشة المودات",apps:lang==="en"?"Software Vault":"مركز البرامج",movies:lang==="en"?"Cinema":"سينما",themes:lang==="en"?"Them PC":"Them PC",free:lang==="en"?"Free Games":"ألعاب مجانية",deals:lang==="en"?"Steam Deals":"عروض Steam",upcoming:lang==="en"?"Upcoming Games":"الإصدارات القادمة",guides:lang==="en"?"Game Guides":"الأدلة والحلول",lab:lang==="en"?"Game Lab":"مختبر الألعاب",pcbuilder:lang==="en"?"PC Builder":"مجمّع الكمبيوتر",trending:lang==="en"?"Trending Mods":"المودات الرائجة",tv:lang==="en"?"Live TV":"التلفزيون المباشر",anime:"SAUDI ANIME"};document.querySelectorAll("#tabs button").forEach(b=>{const el=b.querySelector("span:last-child");if(el)el.textContent=labels[b.dataset.p]||el.textContent});document.querySelectorAll("[data-ar][data-en]").forEach(el=>{el.innerHTML=lang==="en"?el.dataset.en:el.dataset.ar});const crumb=document.getElementById("crumbText");if(crumb)crumb.textContent=labels[document.querySelector("#tabs button.active")?.dataset.p||"home"];
  $("q").placeholder=tr("search");const animeSearch=$("saAnimeSearch");if(animeSearch)animeSearch.placeholder=lang==="en"?"Search in English or Japanese...":"ابحث بالإنجليزي أو الياباني...";const mn=$("movieNote");if(mn)mn.textContent=tr("movieNote");
  const gt=$("gamesTitle"),gn=$("gamesNote"),gs=$("gameSearch"),gb=$("gameSearchBtn"),gm=$("gamesMore");
  if(gt)gt.textContent=lang==="en"?"Game Library":"مكتبة الألعاب";if(gn)gn.textContent=lang==="en"?"Search Steam and explore games in live batches.":"ابحث في متجر Steam واستكشف الألعاب على دفعات.";if(gs)gs.placeholder=tr("gamesSearch");if(gb)gb.textContent=tr("gamesSearchBtn");if(gm)gm.textContent=tr("gamesMore");
@@ -879,5 +917,100 @@ const animeObserver=new MutationObserver(()=>{if($("anime")?.classList.contains(
 })();
 
 
+<script id="sb-pc-builder-js">
+(()=> {
+ const catalog={
+  cpu:[
+   {id:"r5-7600",name:"AMD Ryzen 5 7600",price:749,socket:"AM5",watts:65},
+   {id:"r7-7700",name:"AMD Ryzen 7 7700",price:999,socket:"AM5",watts:65},
+   {id:"r7-7800x3d",name:"AMD Ryzen 7 7800X3D",price:1399,socket:"AM5",watts:120},
+   {id:"i5-14400f",name:"Intel Core i5-14400F",price:699,socket:"LGA1700",watts:148},
+   {id:"i7-14700kf",name:"Intel Core i7-14700KF",price:1499,socket:"LGA1700",watts:253}
+  ],
+  board:[
+   {id:"b650",name:"MSI PRO B650M-A WiFi",price:699,socket:"AM5",memory:"DDR5"},
+   {id:"b650e",name:"ASUS TUF B650-PLUS WiFi",price:899,socket:"AM5",memory:"DDR5"},
+   {id:"b760d4",name:"MSI PRO B760M-P DDR4",price:449,socket:"LGA1700",memory:"DDR4"},
+   {id:"b760d5",name:"MSI PRO B760-P DDR5",price:599,socket:"LGA1700",memory:"DDR5"}
+  ],
+  gpu:[
+   {id:"rtx5060",name:"NVIDIA GeForce RTX 5060 8GB",price:1399,watts:145},
+   {id:"rtx5060ti",name:"NVIDIA GeForce RTX 5060 Ti 16GB",price:1899,watts:180},
+   {id:"rtx5070",name:"NVIDIA GeForce RTX 5070 12GB",price:2599,watts:250},
+   {id:"rx9060xt",name:"AMD Radeon RX 9060 XT 16GB",price:1699,watts:160},
+   {id:"rx9070xt",name:"AMD Radeon RX 9070 XT 16GB",price:2699,watts:304}
+  ],
+  ram:[
+   {id:"16d4",name:"16GB (2×8) DDR4 3200",price:169,memory:"DDR4"},
+   {id:"32d4",name:"32GB (2×16) DDR4 3600",price:279,memory:"DDR4"},
+   {id:"16d5",name:"16GB (2×8) DDR5 6000",price:229,memory:"DDR5"},
+   {id:"32d5",name:"32GB (2×16) DDR5 6000",price:379,memory:"DDR5"},
+   {id:"64d5",name:"64GB (2×32) DDR5 6000",price:699,memory:"DDR5"}
+  ],
+  cooler:[
+   {id:"stock",name:"Basic Air Cooler · 120W",price:99,capacity:120},
+   {id:"tower",name:"Single Tower Air Cooler · 180W",price:169,capacity:180},
+   {id:"dual",name:"Dual Tower Air Cooler · 250W",price:269,capacity:250},
+   {id:"aio240",name:"240mm AIO Liquid Cooler · 280W",price:399,capacity:280}
+  ],
+  storage:[
+   {id:"1tb",name:"1TB NVMe PCIe 4.0",price:269},
+   {id:"2tb",name:"2TB NVMe PCIe 4.0",price:499},
+   {id:"4tb",name:"4TB NVMe PCIe 4.0",price:899}
+  ],
+  psu:[
+   {id:"650",name:"650W 80+ Bronze",price:249,watts:650},
+   {id:"750",name:"750W 80+ Gold",price:399,watts:750},
+   {id:"850",name:"850W 80+ Gold",price:499,watts:850},
+   {id:"1000",name:"1000W 80+ Gold",price:699,watts:1000}
+  ],
+  case:[
+   {id:"airflow",name:"Mid Tower Airflow",price:249},
+   {id:"premium",name:"Mid Tower Premium Airflow",price:399},
+   {id:"compact",name:"Compact mATX Case",price:199}
+  ]
+ };
+ const fields=[
+  ["cpu","المعالج / CPU","Processor"],["board","اللوحة الأم / Motherboard","Motherboard"],["gpu","كرت الشاشة / GPU","Graphics card"],["ram","الذاكرة / RAM","Memory"],["cooler","مبرد المعالج / Cooler","CPU cooler"],["storage","التخزين / SSD","Storage"],["psu","مزود الطاقة / PSU","Power supply"],["case","الكيس / Case","Case"]
+ ];
+ const defaults={cpu:"r5-7600",board:"b650",gpu:"rtx5060",ram:"32d5",cooler:"tower",storage:"1tb",psu:"750",case:"airflow"};
+ const $=id=>document.getElementById(id),chosen={...defaults};
+ const fmt=n=>new Intl.NumberFormat("en-US").format(n);
+ const get=(key)=>catalog[key].find(x=>x.id===chosen[key]);
+ const isEn=()=>document.documentElement.lang==="en";
+ function drawFields(){
+  const host=$("pcFields");if(!host)return;
+  host.innerHTML=fields.map(([key,ar,en])=>'<div class="pc-field"><label for="pc-'+key+'">'+(isEn()?en:ar)+'</label><select id="pc-'+key+'" data-pc-key="'+key+'">'+catalog[key].map(item=>'<option value="'+item.id+'" '+(chosen[key]===item.id?'selected':'')+'>'+item.name+' · '+fmt(item.price)+' SAR</option>').join("")+'</select><small>'+(isEn()?"Estimated price · SAR":"سعر تقديري · ريال سعودي")+'</small></div>').join("");
+  host.querySelectorAll("select").forEach(el=>el.addEventListener("change",()=>{chosen[el.dataset.pcKey]=el.value;render()}));
+ }
+ function render(){
+  const selected=fields.map(([key])=>[key,get(key)]);
+  const total=selected.reduce((sum,[,item])=>sum+item.price,0);
+  $("pcTotal").innerHTML=fmt(total)+' <small>SAR</small>';
+  const cpu=get("cpu"),board=get("board"),ram=get("ram"),cooler=get("cooler"),gpu=get("gpu"),psu=get("psu");
+  const required=Math.ceil((cpu.watts+gpu.watts+150)*1.25/50)*50;
+  const checks=[];
+  if(cpu.socket!==board.socket)checks.push([false,isEn()?"CPU socket does not match the motherboard.":"مقبس المعالج لا يتوافق مع اللوحة الأم."]);
+  if(board.memory!==ram.memory)checks.push([false,isEn()?"RAM type does not match the motherboard.":"نوع الذاكرة لا يتوافق مع اللوحة الأم."]);
+  if(cooler.capacity<cpu.watts)checks.push([false,(isEn()?"Cooler capacity may be insufficient for this CPU. Rated: ":"قدرة المبرد قد لا تكفي لهذا المعالج. تصنيفه: ")+cooler.capacity+"W"]);
+  if(psu.watts<required)checks.push([false,(isEn()?"Power supply may be insufficient. Suggested minimum: ":"قدرة مزود الطاقة قد لا تكفي. الحد المقترح: ")+required+"W"]);
+  if(!checks.length)checks.push([true,isEn()?"Core socket, memory type and estimated power checks look good.":"توافق المقبس والذاكرة والطاقة التقديرية سليم مبدئيًا."]);
+  checks.push([null,(isEn()?"Estimated PSU headroom: ":"هامش الطاقة المقترح: ")+psu.watts+"W"]);
+  $("pcCheck").innerHTML=checks.map(([ok,msg])=>'<div class="pc-check-item '+(ok===false?"warn":ok===null?"info":"")+'">'+(ok===false?"⚠ ":ok===true?"✓ ":"ℹ ")+msg+'</div>').join("");
+  $("pcPartsList").innerHTML=selected.map(([key,item])=>'<div class="pc-part-row"><span>'+fields.find(x=>x[0]===key)[isEn()?2:1]+'</span><b>'+fmt(item.price)+' SAR</b></div>').join("");
+ }
+ function summary(){
+  const rows=fields.map(([key,ar,en])=> (isEn()?en:ar)+": "+get(key).name+" ("+get(key).price+" SAR)");
+  const cpu=get("cpu"),board=get("board"),ram=get("ram"),cooler=get("cooler"),gpu=get("gpu"),psu=get("psu");
+  const required=Math.ceil((cpu.watts+gpu.watts+150)*1.25/50)*50;
+  const issues=[];if(cpu.socket!==board.socket)issues.push(isEn()?"CPU socket mismatch":"تعارض مقبس المعالج");if(board.memory!==ram.memory)issues.push(isEn()?"RAM type mismatch":"تعارض نوع الذاكرة");if(cooler.capacity<cpu.watts)issues.push(isEn()?"CPU cooler may be insufficient":"قدرة مبرد المعالج قد لا تكفي");if(psu.watts<required)issues.push(isEn()?"PSU wattage may be low":"قدرة مزود الطاقة قد تكون منخفضة");
+  return "SAUDI BYTE PC BUILD\n"+rows.join("\n")+"\nTotal: "+fmt(fields.reduce((n,[key])=>n+get(key).price,0))+" SAR\n"+(issues.length?"Warnings: "+issues.join(", "):"Basic compatibility checks passed.")+"\nPrices are estimates, not live retailer quotes.";
+ }
+ $("pcReset")?.addEventListener("click",()=>{Object.assign(chosen,defaults);drawFields();render()});
+ $("pcCopy")?.addEventListener("click",async()=>{const text=summary();try{await navigator.clipboard.writeText(text);$("pcCopy").textContent=isEn()?"Copied ✓":"تم النسخ ✓"}catch(e){const area=document.createElement("textarea");area.value=text;document.body.appendChild(area);area.select();document.execCommand("copy");area.remove();$("pcCopy").textContent=isEn()?"Copied ✓":"تم النسخ ✓"}setTimeout(()=>{$("pcCopy").textContent=isEn()?"Copy build":"نسخ التجميعة"},1800)});
+ drawFields();render();
+ document.querySelectorAll('[data-lang]').forEach(btn=>btn.addEventListener("click",()=>setTimeout(()=>{drawFields();render()},0)));
+})();
+</script>
 </body>
 </html>
