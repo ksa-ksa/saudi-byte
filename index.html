@@ -673,18 +673,18 @@ function drawMovies(){
     const m=localized(raw,"movies");
     const s=getS(m.id,m);
     const d=document.createElement("div");d.className="card";
-    const poster=m.img?`<img class="gimg" src="${m.img}" alt="${m.promo||m.n}" loading="lazy" onerror="this.style.display='none'">`:"";
-    const promo=m.promo?`<div class="tag" style="margin-bottom:8px">🎞 ${m.promo}</div>`:"";
+    const poster=m.img?`<img class="gimg" src="${escapeHtml(safeHttpUrl(m.img))}" alt="${escapeHtml(m.promo||m.n)}" loading="lazy" onerror="this.style.display='none'">`:"";
+    const promo=m.promo?`<div class="tag" style="margin-bottom:8px">🎞 ${escapeHtml(m.promo)}</div>`:"";
     d.innerHTML=`${poster}
-      <div class="ctop"><div class="ico">${brandIconMarkup(m)}</div><div class="ctitle"><h3>${m.n}</h3></div></div>
+      <div class="ctop"><div class="ico">${brandIconMarkup(m)}</div><div class="ctitle"><h3>${escapeHtml(m.n)}</h3></div></div>
       ${promo}
-      <p class="cdesc">${m.s}</p>
+      <p class="cdesc">${escapeHtml(m.s)}</p>
       <div class="cstats">
         <div class="st">👁 <span>${fmt(s.views)}</span></div>
         <div class="st lk ${s.liked?"on":""}">${s.liked?"❤️":"🤍"} <span>${fmt(s.likes)}</span></div>
       </div>
       <div class="cacts">
-        <a class="btn btn-p" href="${m.u}" target="_blank" rel="noopener" data-dl style="flex:1">${tr("watch")}</a>
+        <a class="btn btn-p" href="${escapeHtml(safeHttpUrl(m.u))}" target="_blank" rel="noopener noreferrer" data-dl style="flex:1">${tr("watch")}</a>
       </div>`;
     d.querySelectorAll("[data-dl]").forEach(el=>el.onclick=()=>bump(m.id,"downs"));
     const lk=d.querySelector(".lk");
@@ -718,7 +718,7 @@ const steamProxy="https://proxy.cors.dev/";
 async function steamFetchUrl(url){let response;try{response=await fetch(steamProxy+url,{credentials:"omit",headers:{"Accept":"application/json"}})}catch(e){response=await fetch(url,{credentials:"omit",headers:{"Accept":"application/json"}})}if(!response.ok)throw new Error("Steam request failed");return response.json()}
 function steamSearchUrl(term,start){const u=new URL("https://store.steampowered.com/search/results/");u.searchParams.set("term",term);u.searchParams.set("query",term);u.searchParams.set("start",String(start));u.searchParams.set("count",String(GAMES_PAGE_SIZE));u.searchParams.set("category1","998");u.searchParams.set("infinite","1");u.searchParams.set("ignore_preferences","1");u.searchParams.set("json","1");u.searchParams.set("cc","sa");u.searchParams.set("l",lang==="en"?"english":"arabic");return u.toString()}
 function parseSteamRows(data){const html=data?.results_html||data?.resultsHtml||"";if(!html)return[];const doc=new DOMParser().parseFromString(html,"text/html");return [...doc.querySelectorAll("a.search_result_row")].map(a=>{const id=Number((a.getAttribute("data-ds-appid")||"").split(",")[0]);const name=a.querySelector(".title")?.textContent?.trim();const img=a.querySelector(".search_capsule img")?.getAttribute("src")||a.querySelector("img")?.getAttribute("src")||"";return{id,name,img}}).filter(x=>x.id&&x.name)}
-function gameCard(x){const d=document.createElement("article");d.className="card vis game-card";const image=x.img?`<img class="gimg" src="${x.img}" alt="${escapeHtml(x.name)}" loading="lazy" onerror="this.style.display='none'">`:"";d.innerHTML=`${image}<div class="game-content"><h3>${escapeHtml(x.name)}</h3><div class="tag" style="color:var(--m);font-size:.75rem">Steam App ID: ${x.id}</div><div class="game-links"><a class="steam-link" href="https://store.steampowered.com/app/${x.id}/" target="_blank" rel="noopener">🎮 ${tr("steamLink")}</a><a class="db-link" href="https://steamdb.info/app/${x.id}/" target="_blank" rel="noopener">📊 ${tr("steamDB")}</a></div></div>`;return d}
+function gameCard(x){const d=document.createElement("article");d.className="card vis game-card";const image=x.img?`<img class="gimg" src="${escapeHtml(safeHttpUrl(x.img))}" alt="${escapeHtml(x.name)}" loading="lazy" onerror="this.style.display='none'">`:"";d.innerHTML=`${image}<div class="game-content"><h3>${escapeHtml(x.name)}</h3><div class="tag" style="color:var(--m);font-size:.75rem">Steam App ID: ${x.id}</div><div class="game-links"><a class="steam-link" href="https://store.steampowered.com/app/${x.id}/" target="_blank" rel="noopener">🎮 ${tr("steamLink")}</a><a class="db-link" href="https://steamdb.info/app/${x.id}/" target="_blank" rel="noopener">📊 ${tr("steamDB")}</a></div></div>`;return d}
 function escapeHtml(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function safeHttpUrl(v){try{const u=new URL(String(v||""),location.href);return (u.protocol==="https:"||u.protocol==="http:")?u.href:""}catch(e){return ""}}
 function setGamesStatus(message){const e=$("gamesStatus");if(e)e.textContent=message}
