@@ -402,6 +402,8 @@ window.sbSupabase = window.supabase.createClient(
 (function(){
  const launch=document.getElementById("sb-admin-launch"),panel=document.getElementById("sb-admin"),gate=document.getElementById("sb-auth-gate"),form=document.getElementById("sb-auth-form"),status=document.getElementById("sb-auth-status");
  if(!launch||!panel||!gate||!form)return;
+ const cancel=document.getElementById("sb-auth-cancel");
+ if(cancel)cancel.addEventListener("click",function(e){e.preventDefault();e.stopImmediatePropagation();gate.style.display="none";panel.classList.remove("open");panel.setAttribute("aria-hidden","true");history.replaceState(null,"",location.pathname+location.search);},true);
  function showGate(message){
   panel.classList.add("open");panel.setAttribute("aria-hidden","false");
   gate.style.display="flex";
