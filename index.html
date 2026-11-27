@@ -679,10 +679,10 @@ function drawMovies(){
       <div class="ctop"><div class="ico">${brandIconMarkup(m)}</div><div class="ctitle"><h3>${escapeHtml(m.n)}</h3></div></div>
       ${promo}
       <p class="cdesc">${escapeHtml(m.s)}</p>
-      <div class="cstats">
+      <div class="cstats" title="إحصاءات محلية على هذا الجهاز">
         <div class="st">👁 <span>${fmt(s.views)}</span></div>
         <div class="st lk ${s.liked?"on":""}">${s.liked?"❤️":"🤍"} <span>${fmt(s.likes)}</span></div>
-      </div>
+      </div><small class="local-stats-note">${lang==="en"?"Local to this device":"محلي على هذا الجهاز"}</small>
       <div class="cacts">
         <a class="btn btn-p" href="${escapeHtml(safeHttpUrl(m.u))}" target="_blank" rel="noopener noreferrer" data-dl style="flex:1">${tr("watch")}</a>
       </div>`;
