@@ -33,6 +33,7 @@ module.exports = async function handler(req, res) {
     const target = new URL(raw);
     if (target.protocol !== "https:" ||
         target.hostname !== "store.steampowered.com" ||
+        (target.port && target.port !== "443") || target.username || target.password ||
         !ALLOWED_PATHS.has(target.pathname)) {
       return res.status(400).json({ error: "Steam endpoint is not allowed" });
     }
