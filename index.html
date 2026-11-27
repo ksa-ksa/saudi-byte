@@ -113,6 +113,45 @@
 @media(max-width:520px){.sb-form{grid-template-columns:1fr}.sb-field.full{grid-column:auto}.sb-head h2{font-size:19px}}
 </style>
 
+
+<style id="sb-mobile-nav-fix">
+/* Mobile-only navigation: wrap menu items instead of creating a long horizontal strip. */
+@media (max-width:700px){
+  html,body{max-width:100%;overflow-x:hidden}
+  .sidebar{width:100%;min-width:0}
+  #tabs,.tabs{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:7px;
+    width:100%;
+    max-height:none!important;
+    overflow:visible!important;
+  }
+  #tabs button,.tabs button{
+    display:flex;
+    align-items:center;
+    justify-content:flex-start;
+    gap:8px;
+    width:100%;
+    min-width:0;
+    min-height:44px;
+    padding:10px 11px;
+    white-space:normal;
+    overflow-wrap:anywhere;
+    line-height:1.35;
+    text-align:right;
+    border-radius:9px;
+  }
+  #tabs button span:not(.nav-ico),.tabs button span:not(.nav-ico){
+    min-width:0;
+    overflow-wrap:anywhere;
+  }
+}
+@media (max-width:360px){
+  #tabs,.tabs{grid-template-columns:1fr}
+}
+</style>
+
 </head>
 <body>
 <div class="shell">
