@@ -1,0 +1,19 @@
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+const SITE_ORIGIN = "https://saudi-byte.vercel.app";
+const corsHeaders = {"Access-Control-Allow-Origin":SITE_ORIGIN,"Access-Control-Allow-Headers":"authorization, x-client-info, apikey, content-type","Access-Control-Allow-Methods":"POST, OPTIONS","Vary":"Origin"};
+function json(status:number,body:Record<string,unknown>){return new Response(JSON.stringify(body),{status,headers:{...corsHeaders,"Content-Type":"application/json","Cache-Control":"no-store"}});}
+async function hashIp(ip:string,pepper:string){const bytes=new TextEncoder().encode(pepper+":"+ip);const digest=await crypto.subtle.digest("SHA-256",bytes);return Array.from(new Uint8Array(digest),(b)=>b.toString(16).padStart(2,"0")).join("");}
+Deno.serve(async(req:Request)=>{
+ const origin=req.headers.get("origin");if(origin!==SITE_ORIGIN)return json(403,{error:"Origin not allowed"});
+ if(req.method==="OPTIONS")return new Response(null,{status:204,headers:corsHeaders});
+ if(req.method!=="POST")return json(405,{error:"Method not allowed"});
+ const supabaseUrl=Deno.env.get("SUPABASE_URL"),serviceRoleKey=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+ if(!supabaseUrl||!serviceRoleKey)return json(503,{error:"Analytics service unavailable"});
+ let payload:Record<string,unknown>;try{const raw=await req.text();if(raw.length>2048)return json(413,{error:"Payload too large"});payload=JSON.parse(raw);}catch{return json(400,{error:"Invalid JSON"});}
+ const eventType=payload.event_type,itemKey=typeof payload.item_key==="string"?payload.item_key.trim():"";
+ if(!["view","download","visit"].includes(String(eventType))||!itemKey||itemKey.length>120)return json(400,{error:"Invalid analytics event"});
+ const forwarded=req.headers.get("x-forwarded-for")?.split(",")[0]?.trim(),ip=req.headers.get("cf-connecting-ip")?.trim()||forwarded;
+ if(!ip||ip.length>128)return json(400,{error:"Client address unavailable"});
+ const sb=createClient(supabaseUrl,serviceRoleKey,{auth:{persistSession:false,autoRefreshToken:false}});
+ try{const ipHash=await hashIp(ip,serviceRoleKey);const {data:allowed,error:q}=await sb.rpc("consume_site_event_quota",{p_ip_hash:ipHash});if(q)return json(503,{error:"Analytics temporarily unavailable"});if(allowed!==true)return json(429,{error:"Too many analytics events. Try again later."});const {error:e}=await sb.from("site_events").insert({event_type:eventType,item_key:itemKey});if(e)return json(503,{error:"Unable to save analytics event"});return json(202,{accepted:true});}catch{return json(503,{error:"Analytics temporarily unavailable"});}
+});
