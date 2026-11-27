@@ -117,6 +117,7 @@
 <style id="sb-pc-builder-css">
 .pc-builder-hero{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:28px 30px;border:1px solid #392024;border-radius:18px;background:radial-gradient(circle at 85% 15%,#4b1118 0,transparent 38%),linear-gradient(120deg,#171313,#0d0d0d);margin-bottom:22px}
 .pc-builder-hero h2{font-size:clamp(24px,4vw,36px);margin:9px 0}.pc-builder-hero p{color:#aaa;line-height:1.8;font-size:13px;max-width:650px}
+.pc-market-links{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}.pc-market-links a{font-size:11px;color:#ff777e;text-decoration:none;border:1px solid #51252a;background:#211416;border-radius:8px;padding:8px 11px}.pc-market-links a:hover{background:#35191d}
 .pc-builder-mark{font-size:15px;letter-spacing:4px;color:#aaa;text-align:center;border:1px solid #5b272d;border-radius:16px;padding:18px 22px;transform:rotate(-5deg)}.pc-builder-mark b{color:#ff414a;font-size:24px}
 .pc-builder-layout{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(270px,.85fr);gap:18px;align-items:start}
 .pc-builder-parts,.pc-builder-summary{background:#111;border:1px solid #292929;border-radius:16px;padding:20px}
@@ -249,7 +250,7 @@
     </section>
     <section class="page" id="pcbuilder">
       <div class="pc-builder-hero">
-        <div><div class="section-kicker">SAUDI BYTE / PC BUILDER</div><h2 data-ar="ابنِ تجميعتك، قطعة قطعة." data-en="Build your PC, piece by piece.">ابنِ تجميعتك، قطعة قطعة.</h2><p data-ar="اختر القطع، تابع السعر التقديري، واكتشف تعارضات التوافق قبل الشراء." data-en="Choose your parts, track the estimated cost, and catch compatibility issues before buying.">اختر القطع، تابع السعر التقديري، واكتشف تعارضات التوافق قبل الشراء.</p></div>
+        <div><div class="section-kicker">SAUDI BYTE / PC BUILDER</div><h2 data-ar="ابنِ تجميعتك، قطعة قطعة." data-en="Build your PC, piece by piece.">ابنِ تجميعتك، قطعة قطعة.</h2><p data-ar="اختر القطع، تابع السعر التقديري، واكتشف تعارضات التوافق قبل الشراء." data-en="Choose your parts, track the estimated cost, and catch compatibility issues before buying.">اختر القطع، تابع السعر التقديري، واكتشف تعارضات التوافق قبل الشراء.</p><div class="pc-market-links"><a href="https://priceteq.com/sa/pc-parts" target="_blank" rel="noopener noreferrer">مقارنة أسعار القطع في السعودية ↗</a><a href="https://saudipcprice.com/en" target="_blank" rel="noopener noreferrer">SaudiPCPrice ↗</a></div></div>
         <div class="pc-builder-mark">BYTE<br><b>BUILD</b></div>
       </div>
       <div class="pc-builder-layout">
@@ -878,6 +879,7 @@ const animeObserver=new MutationObserver(()=>{if($("anime")?.classList.contains(
 })();
 
 
+</script>
 <script id="sb-pc-builder-js">
 (()=> {
  const catalog={
@@ -908,6 +910,12 @@ const animeObserver=new MutationObserver(()=>{if($("anime")?.classList.contains(
    {id:"32d5",name:"32GB (2×16) DDR5 6000",price:379,memory:"DDR5"},
    {id:"64d5",name:"64GB (2×32) DDR5 6000",price:699,memory:"DDR5"}
   ],
+  cooler:[
+   {id:"stock",name:"Basic Air Cooler · 120W",price:99,capacity:120},
+   {id:"tower",name:"Single Tower Air Cooler · 180W",price:169,capacity:180},
+   {id:"dual",name:"Dual Tower Air Cooler · 250W",price:269,capacity:250},
+   {id:"aio240",name:"240mm AIO Liquid Cooler · 280W",price:399,capacity:280}
+  ],
   storage:[
    {id:"1tb",name:"1TB NVMe PCIe 4.0",price:269},
    {id:"2tb",name:"2TB NVMe PCIe 4.0",price:499},
@@ -926,9 +934,9 @@ const animeObserver=new MutationObserver(()=>{if($("anime")?.classList.contains(
   ]
  };
  const fields=[
-  ["cpu","المعالج / CPU","Processor"],["board","اللوحة الأم / Motherboard","Motherboard"],["gpu","كرت الشاشة / GPU","Graphics card"],["ram","الذاكرة / RAM","Memory"],["storage","التخزين / SSD","Storage"],["psu","مزود الطاقة / PSU","Power supply"],["case","الكيس / Case","Case"]
+  ["cpu","المعالج / CPU","Processor"],["board","اللوحة الأم / Motherboard","Motherboard"],["gpu","كرت الشاشة / GPU","Graphics card"],["ram","الذاكرة / RAM","Memory"],["cooler","مبرد المعالج / Cooler","CPU cooler"],["storage","التخزين / SSD","Storage"],["psu","مزود الطاقة / PSU","Power supply"],["case","الكيس / Case","Case"]
  ];
- const defaults={cpu:"r5-7600",board:"b650",gpu:"rtx5060",ram:"32d5",storage:"1tb",psu:"750",case:"airflow"};
+ const defaults={cpu:"r5-7600",board:"b650",gpu:"rtx5060",ram:"32d5",cooler:"tower",storage:"1tb",psu:"750",case:"airflow"};
  const $=id=>document.getElementById(id),chosen={...defaults};
  const fmt=n=>new Intl.NumberFormat("en-US").format(n);
  const get=(key)=>catalog[key].find(x=>x.id===chosen[key]);
@@ -942,11 +950,12 @@ const animeObserver=new MutationObserver(()=>{if($("anime")?.classList.contains(
   const selected=fields.map(([key])=>[key,get(key)]);
   const total=selected.reduce((sum,[,item])=>sum+item.price,0);
   $("pcTotal").innerHTML=fmt(total)+' <small>SAR</small>';
-  const cpu=get("cpu"),board=get("board"),ram=get("ram"),gpu=get("gpu"),psu=get("psu");
+  const cpu=get("cpu"),board=get("board"),ram=get("ram"),cooler=get("cooler"),gpu=get("gpu"),psu=get("psu");
   const required=Math.ceil((cpu.watts+gpu.watts+150)*1.25/50)*50;
   const checks=[];
   if(cpu.socket!==board.socket)checks.push([false,isEn()?"CPU socket does not match the motherboard.":"مقبس المعالج لا يتوافق مع اللوحة الأم."]);
   if(board.memory!==ram.memory)checks.push([false,isEn()?"RAM type does not match the motherboard.":"نوع الذاكرة لا يتوافق مع اللوحة الأم."]);
+  if(cooler.capacity<cpu.watts)checks.push([false,(isEn()?"Cooler capacity may be insufficient for this CPU. Rated: ":"قدرة المبرد قد لا تكفي لهذا المعالج. تصنيفه: ")+cooler.capacity+"W"]);
   if(psu.watts<required)checks.push([false,(isEn()?"Power supply may be insufficient. Suggested minimum: ":"قدرة مزود الطاقة قد لا تكفي. الحد المقترح: ")+required+"W"]);
   if(!checks.length)checks.push([true,isEn()?"Core socket, memory type and estimated power checks look good.":"توافق المقبس والذاكرة والطاقة التقديرية سليم مبدئيًا."]);
   checks.push([null,(isEn()?"Estimated PSU headroom: ":"هامش الطاقة المقترح: ")+psu.watts+"W"]);
@@ -957,7 +966,7 @@ const animeObserver=new MutationObserver(()=>{if($("anime")?.classList.contains(
   const rows=fields.map(([key,ar,en])=> (isEn()?en:ar)+": "+get(key).name+" ("+get(key).price+" SAR)");
   const cpu=get("cpu"),board=get("board"),ram=get("ram"),gpu=get("gpu"),psu=get("psu");
   const required=Math.ceil((cpu.watts+gpu.watts+150)*1.25/50)*50;
-  const issues=[];if(cpu.socket!==board.socket)issues.push(isEn()?"CPU socket mismatch":"تعارض مقبس المعالج");if(board.memory!==ram.memory)issues.push(isEn()?"RAM type mismatch":"تعارض نوع الذاكرة");if(psu.watts<required)issues.push(isEn()?"PSU wattage may be low":"قدرة مزود الطاقة قد تكون منخفضة");
+  const issues=[];if(cpu.socket!==board.socket)issues.push(isEn()?"CPU socket mismatch":"تعارض مقبس المعالج");if(board.memory!==ram.memory)issues.push(isEn()?"RAM type mismatch":"تعارض نوع الذاكرة");if(cooler.capacity<cpu.watts)issues.push(isEn()?"CPU cooler may be insufficient":"قدرة مبرد المعالج قد لا تكفي");if(psu.watts<required)issues.push(isEn()?"PSU wattage may be low":"قدرة مزود الطاقة قد تكون منخفضة");
   return "SAUDI BYTE PC BUILD\n"+rows.join("\n")+"\nTotal: "+fmt(fields.reduce((n,[key])=>n+get(key).price,0))+" SAR\n"+(issues.length?"Warnings: "+issues.join(", "):"Basic compatibility checks passed.")+"\nPrices are estimates, not live retailer quotes.";
  }
  $("pcReset")?.addEventListener("click",()=>{Object.assign(chosen,defaults);drawFields();render()});
