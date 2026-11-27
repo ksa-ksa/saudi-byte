@@ -1,0 +1,95 @@
+name: STC Daily Backup
+
+on:
+  schedule:
+    - cron: "0 2 * * *" # 05:00 Asia/Riyadh
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: stc-backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      PROJECT_REF: fsctbkyzgckbuxejiaxe
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      STC_ENCRYPTION_PASSPHRASE: ${{ secrets.STC_ENCRYPTION_PASSPHRASE }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout backup automation
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate required secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY SUPABASE_DB_URL STC_ENCRYPTION_PASSPHRASE; do
+            if [ -z "${!name:-}" ]; then echo "::error::Missing GitHub Actions secret: $name"; exit 1; fi
+          done
+
+      - name: Install PostgreSQL client and GitHub CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client-17
+          gh --version
+          pg_dump --version
+
+      - name: Capture source code and database
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p stc-backup/source stc-backup/database stc-backup/storage stc-backup/edge-functions
+          git fetch origin main --depth=1
+          git archive origin/main | tar -x -C stc-backup/source
+          pg_dump "$SUPABASE_DB_URL" --format=custom --no-owner --no-acl --file=stc-backup/database/saudi-byte.dump
+          cp ops/stc/edge-functions/track-event/index.ts stc-backup/edge-functions/track-event-index.ts
+          cat > stc-backup/manifest.json <<EOF
+          {
+            "backup_name": "STC",
+            "created_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "project_ref": "$PROJECT_REF",
+            "source_branch": "main",
+            "source_commit": "$(git rev-parse origin/main)",
+            "database_format": "PostgreSQL custom archive from pg_dump",
+            "storage": "All buckets and downloadable objects captured by storage-backup.mjs",
+            "edge_functions": ["track-event"],
+            "encryption": "OpenSSL AES-256-CBC with PBKDF2"
+          }
+          EOF
+
+      - name: Download all Supabase Storage objects
+        run: |
+          npm install --no-save @supabase/supabase-js
+          node ops/stc/storage-backup.mjs stc-backup/storage
+
+      - name: Archive and encrypt backup
+        shell: bash
+        run: |
+          set -euo pipefail
+          tar -czf STC-$(date -u +%Y%m%d-%H%M%S).tar.gz stc-backup
+          ARCHIVE="$(ls -1t STC-*.tar.gz | head -n1)"
+          openssl enc -aes-256-cbc -salt -pbkdf2 -iter 600000 \
+            -in "$ARCHIVE" -out "$ARCHIVE.enc" \
+            -pass env:STC_ENCRYPTION_PASSPHRASE
+          sha256sum "$ARCHIVE.enc" > "$ARCHIVE.enc.sha256"
+          rm -f "$ARCHIVE"
+
+      - name: Publish encrypted off-site restore point
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="stc-$(date -u +%Y%m%d-%H%M%S)"
+          gh release create "$TAG" ./*.tar.gz.enc ./*.tar.gz.enc.sha256 \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "STC backup $TAG" \
+            --notes "Encrypted SAUDI BYTE recovery bundle. Decryption passphrase is stored only in GitHub Actions Secrets."
