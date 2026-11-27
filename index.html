@@ -167,42 +167,24 @@
     <section class="page" id="apps"><div class="section-head"><div><div class="section-kicker">SOFTWARE VAULT</div><h2 data-ar="مركز البرامج" data-en="Software Vault">مركز البرامج</h2><p data-ar="أدوات مختارة لويندوز والإنتاجية والحماية" data-en="Curated Windows, productivity and security tools">أدوات مختارة لويندوز والإنتاجية والحماية</p></div></div><div class="toolbar"><div class="sbox"><span class="si">⌕</span><input id="q" placeholder="ابحث عن برنامج..."></div><div class="chips" id="chips"></div></div><div class="grid" id="appGrid"></div></section>
     <section class="page" id="games"><div class="games-head"><div><div class="section-kicker">STEAM DISCOVERY ENGINE</div><h2 id="gamesTitle">مكتبة الألعاب</h2><p class="note" id="gamesNote">ابحث في متجر Steam واستكشف الألعاب على دفعات.</p></div><a class="btn btn-red" href="https://store.steampowered.com/search/?category1=998" target="_blank" rel="noopener">↗ متجر Steam</a></div><div class="games-search"><span>⌕</span><input id="gameSearch" type="search" placeholder="ابحث عن لعبة في Steam..." autocomplete="off"><button id="gameSearchBtn" type="button">بحث</button></div><div id="sb-curated-games-wrap" hidden style="margin:18px 0"><div class="section-kicker">SAUDI BYTE PICKS</div><h3 style="margin:6px 0 12px">ألعاب مختارة</h3><div class="grid" id="sb-curated-game-grid"></div></div><p class="games-status" id="gamesStatus" aria-live="polite"></p><div class="grid" id="gameGrid"></div><div class="games-more-wrap"><button class="btn btn-red" id="gamesMore" type="button" hidden>تحميل المزيد</button></div></section>
     <section class="page" id="tv">
-      <div class="section-head"><div><div class="section-kicker">SAUDI BYTE WATCH</div><h2>التلفزيون المباشر</h2><p class="note">قنوات أخبار عربية وعالمية فقط. اختر القناة لعرض البث داخل الموقع، ويبدأ YouTube مكتومًا احترامًا لإعدادات التشغيل التلقائي.</p></div></div>
+      <div class="section-head"><div><div class="section-kicker">SAUDI BYTE WATCH</div><h2>التلفزيون المباشر</h2><p class="note">القنوات المدرجة هنا مهيأة لعرض البث داخل المشغّل. قد يتوقف البث مؤقتًا إذا لم يكن لدى القناة بث مباشر متاح.</p></div></div>
       <div style="display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:14px;align-items:start" id="tv-layout">
         <div style="background:#101010;border:1px solid #292929;border-radius:16px;padding:12px;min-width:0">
           <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px"><strong id="tv-now-title">BBC News Arabic · بي بي سي عربي</strong><span class="badge-live" style="color:#ff626b;font-size:11px">● بث مباشر</span></div>
           <div style="position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden">
             <iframe id="tv-player" src="https://www.youtube.com/embed/live_stream?channel=UCelk6aHijZq-GJBBB9YpReA&autoplay=1&mute=1&rel=0" title="التلفزيون المباشر" style="position:absolute;inset:0;width:100%;height:100%;border:0" allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
           </div>
-          <div id="tv-official-fallback" style="display:none;margin-top:10px"><a id="tv-official-link" class="btn btn-red" href="https://www.aljazeera.net/video/live" target="_blank" rel="noopener">فتح البث الرسمي للجزيرة ↗</a><span class="note" style="display:block;margin-top:6px">مشغل الجزيرة الرسمي قد يمنع عرضه داخل إطار موقع آخر. إذا لم يظهر هنا، هذا الرابط يفتح البث من موقع الجزيرة مباشرة.</span></div>
-          <p class="note" style="margin:10px 2px 0">بعض القنوات تقيّد التضمين أو توفر بثًا متقطعًا. عند وجود قيود من الناشر، نعرض رابط المصدر الرسمي بدلًا من بث غير مصرح به.</p>
+          <p class="note" style="margin:10px 2px 0">إذا لم يتوفر بث مباشر لدى القناة، قد تظهر شاشة غير متاحة مؤقتًا.</p>
         </div>
         <div style="background:#101010;border:1px solid #292929;border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:8px;max-height:680px;overflow:auto" id="tv-channel-list">
           <div class="section-kicker">ARABIC NEWS · أخبار عربية</div>
           <button type="button" class="btn btn-p tv-channel active" data-video="UCelk6aHijZq-GJBBB9YpReA" data-title="BBC News Arabic · بي بي سي عربي">🇬🇧 بي بي سي عربي</button>
-                    <button type="button" class="btn btn-p tv-channel" data-official="https://www.aljazeera.net/video/live" data-title="Al Jazeera Arabic · الجزيرة العربية">🇶🇦 الجزيرة العربية · البث الرسمي</button>
           <button type="button" class="btn btn-p tv-channel" data-video="UCahpxixMCwoANAftn6IxkTg" data-title="Al Arabiya · العربية">🇸🇦 العربية</button>
           <button type="button" class="btn btn-p tv-channel" data-video="UCrj5BGAhtWxDfqbza9T9hqA" data-title="Al Hadath · الحدث">🇸🇦 الحدث</button>
           <button type="button" class="btn btn-p tv-channel" data-video="UCRJUVYt9gjg8MnlGacySUdg" data-title="Asharq News · الشرق للأخبار">🇸🇦 الشرق للأخبار</button>
           <button type="button" class="btn btn-p tv-channel" data-video="UC30ditU5JI16o5NbFsHde_Q" data-title="DW Arabic · دويتشه فيله عربية">🇩🇪 دويتشه فيله عربية</button>
           <button type="button" class="btn btn-p tv-channel" data-video="UCdTyuXgmJkG_O8_75eqej-w" data-title="France 24 Arabic · فرانس 24 العربية">🇫🇷 فرانس 24 العربية</button>
-          <div class="section-kicker" style="margin-top:10px">MBC GROUP · قنوات مجموعة MBC</div>
-          <p class="note" style="margin:0 2px 6px">روابط القنوات الرسمية. إذا لم يتوفر بث مباشر قابل للتضمين، افتح صفحة القناة الرسمية.</p>
-          <button type="button" class="btn btn-p tv-channel" data-external="https://www.youtube.com/@mbc1" data-title="MBC1">📺 MBC1</button>
-          <button type="button" class="btn btn-p tv-channel" data-external="https://www.youtube.com/@mbc2" data-title="MBC2">🎬 MBC2</button>
-          <button type="button" class="btn btn-p tv-channel" data-external="https://www.youtube.com/@mbc3" data-title="MBC3">🧸 MBC3</button>
-          <button type="button" class="btn btn-p tv-channel" data-external="https://www.youtube.com/@mbc4" data-title="MBC4">✨ MBC4</button>
-          <button type="button" class="btn btn-p tv-channel" data-external="https://www.youtube.com/@mbc5channel" data-title="MBC5">🌍 MBC5</button>
-          <button type="button" class="btn btn-p tv-channel" data-external="https://www.youtube.com/@mbcaction" data-title="MBC Action">⚡ MBC Action</button>
-          <button type="button" class="btn btn-p tv-channel" data-external="https://www.youtube.com/@mbcdrama" data-title="MBC Drama">🎭 MBC Drama</button>
-          <button type="button" class="btn btn-p tv-channel" data-external="https://www.youtube.com/@mbcmax" data-title="MBC MAX">🍿 MBC MAX</button>
-          <button type="button" class="btn btn-p tv-channel" data-external="https://www.youtube.com/@mbcbollywood" data-title="MBC Bollywood">🇮🇳 MBC Bollywood</button>
-          <button type="button" class="btn btn-p tv-channel" data-external="https://www.youtube.com/@mbcmasr" data-title="MBC مصر">🇪🇬 MBC مصر</button>
-          <button type="button" class="btn btn-p tv-channel" data-external="https://www.youtube.com/@MBCMASR2tv" data-title="MBC مصر 2">🇪🇬 MBC مصر 2</button>
-          <button type="button" class="btn btn-p tv-channel" data-external="https://www.youtube.com/@mbciraqchannel" data-title="MBC العراق">🇮🇶 MBC العراق</button>
-          <button type="button" class="btn btn-p tv-channel" data-external="https://www.youtube.com/@mbcpersia" data-title="MBC Persia">🌐 MBC Persia</button>
           <div class="section-kicker" style="margin-top:10px">WORLD NEWS · أخبار عالمية</div>
-          <button type="button" class="btn btn-p tv-channel" data-video="UCNye-wNBqNL5ZzHSJj3l8Bg" data-title="Al Jazeera English · الجزيرة الإنجليزية">🌍 الجزيرة الإنجليزية</button>
           <button type="button" class="btn btn-p tv-channel" data-video="UCQfwfsi5VrQ8yKZ-UWmAEFg" data-title="France 24 English · فرانس 24 الإنجليزية">🇫🇷 فرانس 24 الإنجليزية</button>
           <button type="button" class="btn btn-p tv-channel" data-video="UCVgO39Bk5sMo66-6o6Spn6Q" data-title="ABC News Australia · أخبار أستراليا">🇦🇺 ABC News أستراليا</button>
         </div>
@@ -216,12 +198,9 @@
       <script>
       (() => {
         const root=document.getElementById('tv'); if(!root||root.dataset.bound)return;root.dataset.bound='1';
-        const player=document.getElementById('tv-player'),title=document.getElementById('tv-now-title'),fallback=document.getElementById('tv-official-fallback'),officialLink=document.getElementById('tv-official-link');
+        const player=document.getElementById('tv-player'),title=document.getElementById('tv-now-title');
         root.querySelectorAll('.tv-channel').forEach(b=>b.addEventListener('click',()=>{
           root.querySelectorAll('.tv-channel').forEach(x=>x.classList.remove('active'));b.classList.add('active');title.textContent=b.dataset.title;
-          fallback.style.display='none';
-          if(b.dataset.official){player.src=b.dataset.official;fallback.style.display='block';officialLink.href=b.dataset.official;return;}
-          if(b.dataset.external){player.src='about:blank';fallback.style.display='block';officialLink.href=b.dataset.external;officialLink.textContent='فتح البث الرسمي ↗';return;}
           player.src='https://www.youtube.com/embed/live_stream?channel='+encodeURIComponent(b.dataset.video)+'&autoplay=1&mute=1&rel=0';
         }));
       })();
