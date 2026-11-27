@@ -113,6 +113,24 @@
 @media(max-width:520px){.sb-form{grid-template-columns:1fr}.sb-field.full{grid-column:auto}.sb-head h2{font-size:19px}}
 </style>
 
+<style id="sb-responsive-preview">
+@media(max-width:700px){
+html,body{max-width:100%;overflow-x:clip}
+.shell,.main,.content,.sidebar{min-width:0;max-width:100%}
+.sidebar{border-inline:0!important}
+#tabs.tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;overflow:visible;max-height:none}
+#tabs button{min-width:0;width:100%;white-space:normal;overflow-wrap:anywhere;min-height:44px;text-align:start}
+.topbar{height:auto;min-height:52px;flex-wrap:wrap;gap:8px;padding-block:8px}
+.topbar>*{min-width:0;max-width:100%}
+.hero-copy,.section-head>*{min-width:0;max-width:100%}
+.section-head{flex-wrap:wrap}
+img,video,iframe{max-width:100%}
+input,select,textarea{max-width:100%;min-width:0}
+.launch-grid,.sa-anime-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.launch,.collection-card{min-width:0;overflow-wrap:anywhere}
+}
+@media(max-width:360px){.launch-grid{grid-template-columns:minmax(0,1fr)}}
+</style>
 </head>
 <body>
 <div class="shell">
