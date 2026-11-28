@@ -362,46 +362,7 @@ window.sbSupabase = window.supabase.createClient(
 </section>
 
 
-<script id="sb-admin-emergency-bridge">
-(function(){
- const launch=document.getElementById("sb-admin-launch"),panel=document.getElementById("sb-admin"),gate=document.getElementById("sb-auth-gate"),form=document.getElementById("sb-auth-form"),status=document.getElementById("sb-auth-status");
- if(!launch||!panel||!gate||!form)return;
- function showGate(message){
-  panel.classList.add("open");panel.setAttribute("aria-hidden","false");
-  gate.style.display="flex";
-  if(status){status.style.color="#ddd";status.textContent=message||"سجّل الدخول بحساب المدير للمتابعة.";}
- }
- launch.addEventListener("click",function(e){e.preventDefault();e.stopImmediatePropagation();showGate();},true);
- form.addEventListener("submit",async function(e){
-  e.preventDefault();e.stopImmediatePropagation();
-  if(!window.sbSupabase){if(status)status.textContent="خدمة تسجيل الدخول لم تُحمّل. حدّث الصفحة وحاول مجددًا.";return;}
-  const btn=form.querySelector('button[type="submit"]');if(btn)btn.disabled=true;
-  if(status){status.style.color="#ddd";status.textContent="جارٍ تسجيل الدخول والتحقق من صلاحية المدير...";}
-  try{
-   const {data,error}=await window.sbSupabase.auth.signInWithPassword({
-    email:document.getElementById("sb-auth-email").value.trim(),
-    password:document.getElementById("sb-auth-password").value
-   });
-   if(error)throw error;
-   const {data:isAdmin,error:adminError}=await window.sbSupabase.rpc("is_admin");
-   if(adminError)throw adminError;
-   if(!isAdmin){await window.sbSupabase.auth.signOut();throw new Error("الحساب صحيح لكنه غير مضاف إلى قائمة المدراء.");}
-   gate.style.display="none";
-   panel.classList.add("open");panel.setAttribute("aria-hidden","false");
-   history.replaceState(null,"",location.pathname+location.search+"#admin");
-   document.getElementById("sb-auth-password").value="";
-   if(status)status.textContent="";
-   if(typeof window.sbAdminAfterLogin==="function")window.sbAdminAfterLogin();
-   document.querySelectorAll(".sb-tab").forEach((tab,i)=>tab.classList.toggle("active",i===0));
-   document.querySelectorAll(".sb-page").forEach((page,i)=>page.classList.toggle("active",i===0));
-   const contentStatus=document.getElementById("sb-form-status");
-   if(contentStatus)contentStatus.textContent="تم تسجيل الدخول بنجاح. جارٍ تحميل لوحة الإدارة.";
-  }catch(err){
-   if(status){status.style.color="#ff747b";status.textContent="تعذر تسجيل الدخول: "+(err.message||"تحقق من البيانات والاتصال.");}
-  }finally{if(btn)btn.disabled=false;}
- },true);
-})();
-</script>
+
 
 <script>
 const cats=["الكل","الذكاء الاصطناعي","الحماية والأمان","الصيانة والتنظيف","التصفح والإنترنت","المكتب والإنتاجية","الوسائط والترفيه","الأدوات المساعدة","الألعاب والمودات","التطوير والبرمجة"];
@@ -731,36 +692,23 @@ drawChips();drawApps();drawThemes();drawMovies();updG();document.querySelectorAl
  function resetForm(){ $a("sb-content-form").reset();$a("sb-edit-id").value="";$a("sb-icon").value="🧩";$a("sb-editor-title").textContent="إضافة عنصر جديد إلى دليل البرامج";$a("sb-form-status").textContent="";currentImageUrl=null;clearImagePreview();}
  function editItem(id){const x=readItems().find(v=>v.id===id);if(!x)return;$a("sb-edit-id").value=x.id;$a("sb-name").value=x.n;$a("sb-category").value=x.c;$a("sb-summary").value=x.s;$a("sb-url").value=x.u;$a("sb-download").value=x.dl||"";$a("sb-icon").value=x.i||"🧩";$a("sb-status").value=x.status;currentImageUrl=x.img||null;if(currentImageUrl)showImagePreview(currentImageUrl);else clearImagePreview();$a("sb-editor-title").textContent="تعديل عنصر المحتوى";document.querySelector('[data-tab="content"]').click();$a("sb-name").focus();}
  async function deleteItem(id){if(!confirm("تأكيد حذف هذا العنصر؟"))return;try{await requireAdmin();const {error}=await window.sbSupabase.from("apps").delete().eq("id",id);if(error)throw error;writeItems(readItems().filter(x=>x.id!==id));refresh();if(typeof drawApps==="function")drawApps();$a("sb-form-status").textContent="تم حذف العنصر من قاعدة البيانات.";}catch(err){$a("sb-form-status").textContent="تعذر الحذف: "+(err.message||"خطأ غير معروف");}}
+ let adminAttempt=0;
+ function closeAdmin(){adminAttempt++;$a("sb-admin").classList.remove("open");$a("sb-admin").setAttribute("aria-hidden","true");$a("sb-auth-gate").style.display="none";$a("sb-auth-password").value="";history.replaceState(null,"",location.pathname+location.search);}
  async function openAdmin(){
-  const panel=$a("sb-admin"),gate=$a("sb-auth-gate"),status=$a("sb-auth-status");
-  panel.classList.add("open");panel.setAttribute("aria-hidden","false");
-  gate.style.display="flex";status.style.color="#ddd";status.textContent="جارٍ التحقق من جلسة الدخول...";
-  try{
-   if(!window.sbSupabase)throw new Error("تعذر الاتصال بخدمة تسجيل الدخول. حدّث الصفحة وحاول مجددًا.");
-   const {data:{session},error:sessionError}=await window.sbSupabase.auth.getSession();
-   if(sessionError)throw sessionError;
-   if(!session){status.textContent="سجّل الدخول بحساب المدير للمتابعة."; $a("sb-auth-email").focus();return;}
-   const {data:isAdmin,error}=await window.sbSupabase.rpc("is_admin");
-   if(error)throw error;
-   if(!isAdmin){await window.sbSupabase.auth.signOut();status.textContent="هذا الحساب ليس ضمن المدراء.";return;}
-   gate.style.display="none";refresh();history.replaceState(null,"",location.pathname+location.search+"#admin");
-   try{await syncAdminContent();refresh();$a("sb-form-status").textContent="تمت مزامنة المحتوى مع Supabase.";}
-   catch(err){$a("sb-form-status").textContent="تعذرت المزامنة: "+(err.message||"تحقق من اتصال قاعدة البيانات");}
-  }catch(err){status.textContent="تعذر فتح الإدارة: "+(err.message||"تحقق من الاتصال ثم أعد المحاولة.");}
+  const attempt=++adminAttempt,panel=$a("sb-admin"),gate=$a("sb-auth-gate"),status=$a("sb-auth-status");
+  panel.classList.remove("open");panel.setAttribute("aria-hidden","true");gate.style.display="flex";status.textContent="جارٍ التحقق من جلسة الدخول...";
+  try{await requireAdmin();if(attempt!==adminAttempt)return;gate.style.display="none";panel.classList.add("open");panel.setAttribute("aria-hidden","false");history.replaceState(null,"",location.pathname+location.search+"#admin");refresh();await syncAdminContent();if(attempt===adminAttempt)refresh();}
+  catch(err){if(attempt===adminAttempt&&!panel.classList.contains("open"))status.textContent="سجّل الدخول بحساب المدير للمتابعة.";}
  }
- function closeAdmin(){ $a("sb-admin").classList.remove("open");$a("sb-admin").setAttribute("aria-hidden","true");history.replaceState(null,"",location.pathname+location.search);}
  $a("sb-admin-launch").addEventListener("click",openAdmin);$a("sb-close").addEventListener("click",closeAdmin);
- $a("sb-auth-cancel").addEventListener("click",()=>$a("sb-auth-gate").style.display="none");
+ $a("sb-auth-cancel").addEventListener("click",()=>{closeAdmin();goPage("home");});
  $a("sb-auth-form").addEventListener("submit",async e=>{
-  e.preventDefault();const status=$a("sb-auth-status");status.style.color="#ff747b";status.textContent="جارٍ التحقق من الحساب...";
-  const {error}=await window.sbSupabase.auth.signInWithPassword({email:$a("sb-auth-email").value.trim(),password:$a("sb-auth-password").value});
-  if(error){status.textContent="تعذر تسجيل الدخول. تحقق من البريد وكلمة المرور.";return;}
-  const {data:isAdmin,error:checkError}=await window.sbSupabase.rpc("is_admin");
-  if(checkError||!isAdmin){await window.sbSupabase.auth.signOut();status.textContent="تم رفض الدخول: الحساب غير مسجل كمدير.";return;}
-  $a("sb-auth-password").value="";$a("sb-auth-gate").style.display="none";status.textContent="";openAdmin();
+  e.preventDefault();const attempt=++adminAttempt,status=$a("sb-auth-status");status.textContent="جارٍ التحقق من الحساب...";
+  try{const {error}=await window.sbSupabase.auth.signInWithPassword({email:$a("sb-auth-email").value.trim(),password:$a("sb-auth-password").value});if(error)throw error;if(attempt!==adminAttempt){await window.sbSupabase.auth.signOut();return;}await requireAdmin();if(attempt!==adminAttempt){await window.sbSupabase.auth.signOut();return;}await openAdmin();}
+  catch(err){if(attempt===adminAttempt){status.textContent="تم رفض الدخول. تحقق من الحساب وصلاحية المدير.";await window.sbSupabase.auth.signOut();}}
  });
- $a("sb-logout").addEventListener("click",async()=>{await window.sbSupabase.auth.signOut();closeAdmin();$a("sb-auth-status").textContent="تم تسجيل الخروج.";});
-
+ $a("sb-logout").addEventListener("click",async()=>{closeAdmin();await window.sbSupabase.auth.signOut();});
+ if(window.sbSupabase)window.sbSupabase.auth.onAuthStateChange((event)=>{if(event==="SIGNED_OUT"&&$a("sb-admin").classList.contains("open"))closeAdmin();});
  document.querySelectorAll(".sb-tab").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".sb-tab").forEach(x=>x.classList.toggle("active",x===b));document.querySelectorAll(".sb-page").forEach(x=>x.classList.toggle("active",x.id==="sb-page-"+b.dataset.tab));}));
  $a("sb-content-form").addEventListener("submit",async e=>{
   e.preventDefault();const status=$a("sb-form-status");status.textContent="جارٍ الحفظ في قاعدة البيانات...";
@@ -790,7 +738,7 @@ drawChips();drawApps();drawThemes();drawMovies();updG();document.querySelectorAl
  (async()=>{try{const {data,error}=await window.sbSupabase.from("apps").select("*").eq("status","published").order("created_at",{ascending:false});if(error)throw error;(data||[]).forEach(row=>{const x=itemFromRow(row),at=apps.findIndex(a=>a.id===x.id);if(at>=0)apps[at]=x;else apps.push(x)});if(typeof drawApps==="function")drawApps();}catch(err){console.warn("SAUDI BYTE cloud catalog unavailable:",err.message||err)}})();
  async function renderPublicGames(){const wrap=$a("sb-curated-games-wrap"),host=$a("sb-curated-game-grid");if(!wrap||!host)return;try{const {data,error}=await window.sbSupabase.from("games").select("id,name,description,category,image_url,platform,official_url").eq("status","published").order("created_at",{ascending:false});if(error)throw error;host.innerHTML="";(data||[]).forEach(g=>{const card=document.createElement("article");card.className="card";const safeUrl=/^https?:\/\//i.test(g.official_url||"")?g.official_url:"#";card.innerHTML=(g.image_url?'<img class="gimg" src="'+escapeHtml(g.image_url)+'" alt="'+escapeHtml(g.name)+'" loading="lazy">':'')+'<div class="ctop"><div class="ico">🎮</div><div class="ctitle"><h3>'+escapeHtml(g.name)+'</h3></div></div><p class="cdesc">'+escapeHtml(g.description||"")+'</p><div class="sb-muted">'+escapeHtml([g.category,g.platform].filter(Boolean).join(" · "))+'</div><div class="cacts"><a class="btn btn-p" href="'+escapeHtml(safeUrl)+'" target="_blank" rel="noopener" data-game-open="'+escapeHtml(g.id)+'" style="flex:1">عرض اللعبة ↗</a></div>';host.appendChild(card);});wrap.hidden=!(data||[]).length;host.querySelectorAll("[data-game-open]").forEach(a=>a.addEventListener("click",()=>window.sbTrackEvent("download",a.dataset.gameOpen)));}catch(err){console.warn("SAUDI BYTE curated games unavailable:",err.message||err);}}
  renderPublicGames();
- window.addEventListener("keydown",e=>{if(e.ctrlKey&&e.shiftKey&&e.key.toLowerCase()==="a"){e.preventDefault();openAdmin()}if(e.key==="Escape"&&$a("sb-admin").classList.contains("open"))closeAdmin()});
+ window.addEventListener("keydown",e=>{if(e.ctrlKey&&e.shiftKey&&e.key.toLowerCase()==="a"){e.preventDefault();openAdmin()}if(e.key==="Escape"&&($a("sb-admin").classList.contains("open")||$a("sb-auth-gate").style.display==="flex"))closeAdmin()});
 })();
 
 </script>
