@@ -117,14 +117,14 @@
 .topbar{direction:ltr!important;gap:12px}.topbar .top-actions{order:-1;direction:ltr;min-width:0}.topbar .crumb{margin-left:auto;text-align:right;min-width:0;overflow-wrap:anywhere}.topbar .lang-switch{margin:0;flex-shrink:0}.sb-home-return{display:inline-flex;align-items:center;gap:6px;margin:0 0 16px;padding:9px 14px;border:1px solid #454545;border-radius:8px;background:#171717;color:#fff;cursor:pointer;font:inherit;font-size:13px;min-height:44px}.sb-home-return:hover,.sb-home-return:focus-visible{border-color:#e50914;outline-offset:3px}.topbar .lang-switch button{min-height:36px}@media(max-width:600px){.topbar{padding:0 12px;gap:8px}.topbar .status-pill{display:none}.topbar .crumb{font-size:11px}.topbar .lang-switch button{min-height:44px;padding:6px 8px}}
 </style>
 <style id="sb-mobile-menu">
-#sb-menu-toggle{display:none}
+#sb-menu-toggle,#sb-menu-state{display:none}
 @media(max-width:700px){
 .shell,.sidebar,.main,.content{min-width:0;max-width:100%;box-sizing:border-box}
 .sidebar{width:100%}
-#sb-menu-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:44px;padding:10px 14px;background:#171717;color:#fff;border:1px solid #454545;border-radius:9px;font:inherit;cursor:pointer}
-#sb-menu-toggle[aria-expanded="true"]{border-color:#e50914}
-#tabs{display:none;max-height:55vh;overflow-y:auto;overflow-x:hidden;width:100%;margin-top:8px}
-#tabs.sb-menu-open{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+#sb-menu-state{display:block;position:absolute;width:1px;height:1px;opacity:0}#sb-menu-state:focus-visible + #sb-menu-toggle{outline:2px solid #e50914}#sb-menu-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:44px;padding:10px 14px;background:#171717;color:#fff;border:1px solid #454545;border-radius:9px;font:inherit;cursor:pointer}
+#sb-menu-state:checked + #sb-menu-toggle{border-color:#e50914}
+#tabs{display:none!important;max-height:55vh;overflow-y:auto;overflow-x:hidden;width:100%;margin-top:8px}
+#sb-menu-state:checked ~ #tabs{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
 #tabs button{min-width:0;width:100%;min-height:44px;white-space:normal;overflow-wrap:anywhere}
 }
 </style></head>
@@ -133,7 +133,7 @@
 <aside class="sidebar">
   <div class="brand"><div class="brand-mark">B</div><div><b>SAUDI BYTE</b><small>GAMING &amp; DIGITAL HUB</small></div></div>
   <div class="nav-label">WORKSPACE</div>
-  <button id="sb-menu-toggle" type="button" aria-controls="tabs" aria-expanded="false"><span data-ar="☰ الأقسام" data-en="☰ Sections">☰ الأقسام</span><span aria-hidden="true">⌄</span></button>
+  <input type="checkbox" id="sb-menu-state" aria-label="Sections" aria-controls="tabs"><label id="sb-menu-toggle" for="sb-menu-state"><span data-ar="☰ الأقسام" data-en="☰ Sections">☰ الأقسام</span><span aria-hidden="true">⌄</span></label>
 <nav class="tabs" id="tabs">
     <button class="active" data-p="home"><span class="nav-ico">⌂</span><span data-ar="الرئيسية" data-en="Overview">الرئيسية</span></button>
     <button data-p="games"><span class="nav-ico">◈</span><span data-ar="مكتبة الألعاب" data-en="Game Library">مكتبة الألعاب</span></button>
@@ -803,7 +803,5 @@ const animeObserver=new MutationObserver(()=>{if($("anime")?.classList.contains(
 })();
 
 
-<script id="sb-mobile-menu-script">
-(function(){const toggle=document.getElementById("sb-menu-toggle"),nav=document.getElementById("tabs");if(!toggle||!nav)return;function set(open){toggle.setAttribute("aria-expanded",String(open));nav.classList.toggle("sb-menu-open",open);}toggle.addEventListener("click",()=>set(toggle.getAttribute("aria-expanded")!=="true"));nav.addEventListener("click",e=>{if(e.target.closest("button[data-p]"))set(false)});document.addEventListener("keydown",e=>{if(e.key==="Escape"&&toggle.getAttribute("aria-expanded")==="true"){set(false);toggle.focus()}});window.matchMedia("(max-width:700px)").addEventListener("change",()=>set(false));})();
-</script></body>
+<script id="sb-mobile-menu-script">(function(){var state=document.getElementById("sb-menu-state"),nav=document.getElementById("tabs");nav.addEventListener("click",function(e){if(e.target.closest("button[data-p]"))state.checked=false;});document.addEventListener("keydown",function(e){if(e.key==="Escape")state.checked=false;});})();</script></body>
 </html>
