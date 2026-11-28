@@ -369,3 +369,5 @@ body .shell{min-width:0}
 }
 
 #health #sb-health-smart-tools,#health #sb-protection-tools{min-width:0;max-width:100%}#health .sb-health-download .note{margin:8px 0}#health .sb-health-download .btn{margin:5px 0}#health .sb-smart-panel{scroll-margin-top:80px}
+
+.sb-mobile-tile .sb-art-health{background:none!important;display:grid;place-items:center;aspect-ratio:1; color:#ff3e4a;filter:drop-shadow(0 0 4px #bd071b)}.sb-mobile-tile .sb-art-health svg{width:100%;height:100%;max-width:44px;max-height:44px}
