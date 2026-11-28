@@ -1,0 +1,11 @@
+{
+  "name": "saudi-byte-static-build",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/optimize-assets.cjs"
+  },
+  "dependencies": {
+    "sharp": "0.34.3",
+    "terser": "5.43.1"
+  }
+}
