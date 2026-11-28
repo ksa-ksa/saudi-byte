@@ -1,0 +1,75 @@
+name: SAUDI BYTE link health
+on:
+  schedule:
+    - cron: '17 4 * * *'
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/link-health.yml'
+permissions:
+  contents: read
+concurrency:
+  group: saudi-byte-link-health
+  cancel-in-progress: false
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Check public directory links
+        shell: bash
+        run: |
+          python - <<'PY'
+          import concurrent.futures, datetime, json, re, urllib.request, urllib.error, urllib.parse
+          from pathlib import Path
+          source = Path('index.html').read_text(encoding='utf-8')
+          urls = set(re.findall(r'\b(?:u|dl)\s*:\s*"(https://[^"\s<>]+)"', source))
+          urls.update(re.findall(r'data-official="(https://[^"\s<>]+)"', source))
+          urls.update('https://www.youtube.com/channel/'+x for x in re.findall(r'data-video="(UC[A-Za-z0-9_-]{22})"', source))
+          class NoRedirect(urllib.request.HTTPRedirectHandler):
+              def redirect_request(self, req, fp, code, msg, headers, newurl):
+                  return None
+          def check(url):
+              parsed = urllib.parse.urlsplit(url)
+              if parsed.scheme != 'https' or not parsed.hostname or parsed.username or parsed.password or parsed.port not in (None,443):
+                  return {'url':url,'status':'unverified','detail':'unsupported URL'}
+              try:
+                  import socket, ipaddress
+                  ips = socket.getaddrinfo(parsed.hostname,443,type=socket.SOCK_STREAM)
+                  if not ips or any(not ipaddress.ip_address(i[4][0]).is_global for i in ips):
+                      return {'url':url,'status':'unverified','detail':'non-public address'}
+                  opener = urllib.request.build_opener(urllib.request.ProxyHandler({}),NoRedirect())
+                  req = urllib.request.Request(url,method='GET',headers={'User-Agent':'SaudiByteLinkHealth/1.0','Range':'bytes=0-0'})
+                  try:
+                      with opener.open(req,timeout=10) as response:
+                          code = response.status
+                  except urllib.error.HTTPError as e:
+                      code = e.code
+                      e.close()
+                  status = 'reachable' if 200<=code<300 else 'redirect' if 300<=code<400 else 'missing' if code in (404,410) else 'unverified'
+                  return {'url':url,'status':status,'detail':str(code)}
+              except Exception as e:
+                  return {'url':url,'status':'unverified','detail':type(e).__name__}
+          with concurrent.futures.ThreadPoolExecutor(max_workers=6) as pool:
+              results=list(pool.map(check,sorted(urls)[:150]))
+          report={'checked_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'scope':'Static publisher/download URLs and channel pages; not stream playback, dynamic database links, or malware checks. Redirects and uncertain responses require review.','results':results}
+          Path('link-health.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
+          import os
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a',encoding='utf-8') as f:
+              f.write('## SAUDI BYTE link health\n\n')
+              for status in ('reachable','redirect','missing','unverified'):
+                  f.write(f'- {status}: {sum(x["status"]==status for x in results)}\n')
+              f.write('\n### Review required\n')
+              for row in results:
+                  if row['status'] in ('missing','unverified'):
+                      f.write('- '+row['status']+' ('+row['detail']+'): '+row['url'].replace('<','%3C').replace('>','%3E')+'\n')
+              f.write('\nNo links were automatically deleted or changed.\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: saudi-byte-link-health
+          path: link-health.json
+          retention-days: 14
