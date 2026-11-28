@@ -312,7 +312,7 @@ window.sbSupabase = window.supabase.createClient(
     <div class="sb-metric"><small>إجمالي الأحداث</small><strong id="sb-count-downs">0</strong></div>
    </div>
    <div class="sb-grid2">
-    <div class="sb-panel"><h3>آخر نشاط مسجل</h3><div id="sb-recent" class="sb-muted">لا توجد بيانات بعد.</div></div>
+    <div class="sb-panel"><div class="sb-muted" id="sb-p7-overview-scope">ملخص أحدث الأحداث المتاحة</div><h3>آخر نشاط مسجل</h3><div id="sb-recent" class="sb-muted">لا توجد بيانات بعد.</div></div>
     <div class="sb-panel"><h3>حالة الأنظمة</h3><p class="sb-muted">المحتوى الأساسي: مضمّن داخل HTML</p><p class="sb-muted">المحتوى الإضافي: Supabase ومزامنة سحابية</p><p class="sb-muted">الإحصائيات: Supabase وأحداث سحابية مشتركة</p><p class="sb-muted">المستخدمون والصلاحيات: Supabase Auth مفعّل</p></div>
    </div>
   </div>
@@ -354,12 +354,11 @@ window.sbSupabase = window.supabase.createClient(
     </div>
     <div class="sb-panel"><h3>مكتبة الألعاب</h3><p class="sb-muted">الألعاب المنشورة تظهر في قسم مكتبة الألعاب فوق نتائج Steam المباشرة. المسودات لا تظهر للزوار.</p><div class="sb-metric"><small>عدد الألعاب المحفوظة</small><strong id="sb-games-count">0</strong></div></div>
    </div>
-   <div class="sb-panel" style="margin-top:14px"><h3>الألعاب المحفوظة</h3><div class="sb-table-wrap" id="sb-games-table"></div></div>
+   <div class="sb-panel" style="margin-top:14px"><h3>الألعاب المحفوظة</h3><div class="sb-content-tools"><input id="sb-p7-game-search" type="search" placeholder="ابحث بالاسم أو المنصة أو التصنيف" aria-label="البحث في الألعاب"><select id="sb-p7-game-filter" aria-label="حالة نشر اللعبة"><option value="all">كل الحالات</option><option value="published">المنشورة</option><option value="draft">المسودات</option></select></div><div class="sb-muted" id="sb-p7-game-result" aria-live="polite"></div><div class="sb-table-wrap" id="sb-games-table"></div></div>
   </div>
   <div class="sb-page" id="sb-page-analytics">
    <div class="sb-panel">
-    <h3>ملخص الأداء</h3>
-    <div class="sb-muted">إجمالي الأحداث السحابية المسجلة من جميع الأجهزة.</div>
+    <div class="sb-chart-head"><h3>ملخص الأداء</h3><div class="sb-actions"><button type="button" class="sb-btn" id="sb-p7-refresh">تحديث الإحصائيات</button><button type="button" class="sb-btn" id="sb-p7-csv" disabled>تصدير CSV</button></div></div><div class="sb-muted" id="sb-p7-scope" role="status" aria-live="polite">جارٍ تحميل البيانات السحابية...</div><div class="sb-muted">المؤشرات والترتيب والتصدير تتبع الفترة المختارة أدناه؛ الزيارات ليست زواراً فريدين.</div>
     <div class="sb-analytics-kpis">
      <div class="sb-analytics-kpi"><small>زيارات الموقع</small><strong id="sb-analytics-visits">0</strong></div>
      <div class="sb-analytics-kpi"><small>مشاهدات التفاصيل</small><strong id="sb-analytics-views">0</strong></div>
@@ -663,17 +662,38 @@ drawChips();drawApps();drawThemes();drawMovies();updG();document.querySelectorAl
  const stats=()=>safeRead(STATS_KEY,{});
  // Legacy local counters remain available for backup, while the admin dashboard reads cloud events.
  const fmtN=n=>Number(n||0).toLocaleString("ar-SA");
- let cloudEvents=[],adminGames=[];
+ let cloudEvents=[],adminGames=[],cloudCount=null,cloudLoadedAt=null,cloudRequest=0;
  async function loadCloudEvents(){
   await requireAdmin();
-  const {data,error}=await window.sbSupabase.from("site_events").select("event_type,item_key,created_at").order("created_at",{ascending:false}).limit(5000);
-  if(error)throw error;
-  cloudEvents=data||[];
-  return cloudEvents;
+  const request=++cloudRequest, cutoff=new Date().toISOString(), loaded=[];
+  let total=null;
+  $a("sb-p7-csv").disabled=true;
+  $a("sb-p7-scope").textContent="جارٍ تحديث الإحصائيات...";
+  try{
+   while(loaded.length<5000){
+    const from=loaded.length;
+    const {data,error,count}=await window.sbSupabase.from("site_events").select("event_type,item_key,created_at",from===0?{count:"exact"}:{}).lte("created_at",cutoff).order("created_at",{ascending:false}).order("item_key",{ascending:true}).order("event_type",{ascending:true}).range(from,Math.min(from+499,4999));
+    if(request!==cloudRequest)return cloudEvents;
+    if(error)throw error;
+    if(from===0)total=count;
+    if(!data?.length)break;
+    loaded.push(...data);
+    if(total!==null&&loaded.length>=total)break;
+   }
+   await requireAdmin();
+   if(request!==cloudRequest)return cloudEvents;
+   cloudEvents=loaded;cloudCount=total;cloudLoadedAt=new Date();
+   $a("sb-p7-csv").disabled=false;
+   return cloudEvents;
+  }catch(err){
+   if(request===cloudRequest){$a("sb-p7-scope").textContent="تعذر تحديث الإحصائيات. حاول مجدداً."; $a("sb-p7-csv").disabled=true;}
+   throw err;
+  }
  }
- const cloudTotals=()=>cloudEvents.reduce((t,e)=>{t.total++;if(e.event_type==="visit")t.visits++;if(e.event_type==="view")t.views++;if(e.event_type==="download")t.downloads++;return t},{total:0,visits:0,views:0,downloads:0});
+ const cloudTotals=(events=cloudEvents)=>events.reduce((t,e)=>{t.total++;if(e.event_type==="visit")t.visits++;if(e.event_type==="view")t.views++;if(e.event_type==="download")t.downloads++;return t},{total:0,visits:0,views:0,downloads:0});
  function renderOverview(){
   const totals=cloudTotals();
+  $a("sb-p7-overview-scope").textContent="أحدث "+fmtN(cloudEvents.length)+" حدث"+(cloudCount!==null?" من "+fmtN(cloudCount):"")+"؛ ليست بالضرورة جميع الأحداث.";
   $a("sb-count-apps").textContent=fmtN(totals.visits);
   $a("sb-count-custom").textContent=fmtN(totals.views);
   $a("sb-count-views").textContent=fmtN(totals.downloads);
@@ -694,7 +714,7 @@ drawChips();drawApps();drawThemes();drawMovies();updG();document.querySelectorAl
  }
  $a("sb-content-search").addEventListener("input",renderContent);$a("sb-content-filter").addEventListener("change",renderContent);
  async function loadAdminGames(){await requireAdmin();const {data,error}=await window.sbSupabase.from("games").select("*").order("created_at",{ascending:false});if(error)throw error;adminGames=data||[];return adminGames;}
- function renderAdminGames(){const host=$a("sb-games-table");$a("sb-games-count").textContent=fmtN(adminGames.length);if(!adminGames.length){host.innerHTML='<div class="sb-empty">لا توجد ألعاب محفوظة بعد.</div>';return;}host.innerHTML='<table><thead><tr><th>اللعبة</th><th>المنصة</th><th>الحالة</th><th>الإجراءات</th></tr></thead><tbody>'+adminGames.map(g=>'<tr><td><div class="sb-item-cell">'+(g.image_url?'<img class="sb-item-thumb" src="'+esc(g.image_url)+'" alt="">':'<span class="sb-item-thumb sb-item-thumb-empty">🎮</span>')+'<div><b>'+esc(g.name)+'</b><div class="sb-muted">'+esc(g.description||"")+'</div></div></div></td><td>'+esc(g.platform||"غير محدد")+'</td><td>'+(g.status==="published"?"منشورة":"مسودة")+'</td><td><div class="sb-item-actions"><button class="sb-btn" data-game-edit="'+esc(g.id)+'">تعديل</button><button class="sb-btn danger" data-game-delete="'+esc(g.id)+'">حذف</button></div></td></tr>').join("")+'</tbody></table>';host.querySelectorAll("[data-game-edit]").forEach(b=>b.onclick=()=>editGame(b.dataset.gameEdit));host.querySelectorAll("[data-game-delete]").forEach(b=>b.onclick=()=>deleteGame(b.dataset.gameDelete));}
+ function renderAdminGames(){const host=$a("sb-games-table");$a("sb-games-count").textContent=fmtN(adminGames.length);const q=$a("sb-p7-game-search").value.trim().toLocaleLowerCase(),f=$a("sb-p7-game-filter").value;const visible=adminGames.filter(g=>(f==="all"||g.status===f)&&(!q||[g.name,g.platform,g.category,g.description].some(x=>String(x||"").toLocaleLowerCase().includes(q))));$a("sb-p7-game-result").textContent="عرض "+fmtN(visible.length)+" من "+fmtN(adminGames.length);if(!adminGames.length){host.innerHTML='<div class="sb-empty">لا توجد ألعاب محفوظة بعد.</div>';return;}if(!visible.length){host.textContent="لا توجد ألعاب تطابق الفلتر.";return;}host.innerHTML='<table><thead><tr><th>اللعبة</th><th>المنصة</th><th>الحالة</th><th>الإجراءات</th></tr></thead><tbody>'+visible.map(g=>'<tr><td><div class="sb-item-cell">'+(g.image_url?'<img class="sb-item-thumb" src="'+esc(g.image_url)+'" alt="">':'<span class="sb-item-thumb sb-item-thumb-empty">🎮</span>')+'<div><b>'+esc(g.name)+'</b><div class="sb-muted">'+esc(g.description||"")+'</div></div></div></td><td>'+esc(g.platform||"غير محدد")+'</td><td>'+(g.status==="published"?"منشورة":"مسودة")+'</td><td><div class="sb-item-actions"><button class="sb-btn" data-game-edit="'+esc(g.id)+'">تعديل</button><button class="sb-btn danger" data-game-delete="'+esc(g.id)+'">حذف</button></div></td></tr>').join("")+'</tbody></table>';host.querySelectorAll("[data-game-edit]").forEach(b=>b.onclick=()=>editGame(b.dataset.gameEdit));host.querySelectorAll("[data-game-delete]").forEach(b=>b.onclick=()=>deleteGame(b.dataset.gameDelete));}
  let currentGameImageUrl=null,gameImagePreviewObjectUrl=null;
  function clearGameImage(){if(gameImagePreviewObjectUrl){URL.revokeObjectURL(gameImagePreviewObjectUrl);gameImagePreviewObjectUrl=null;}$a("sb-game-image-preview").removeAttribute("src");$a("sb-game-image-preview-wrap").hidden=true;$a("sb-game-image").value="";}
  $a("sb-game-image").addEventListener("change",()=>{const file=$a("sb-game-image").files?.[0];if(!file)return;if(!["image/jpeg","image/png","image/webp","image/gif"].includes(file.type)||file.size>5*1024*1024){$a("sb-game-status-message").textContent="صيغة الصورة أو حجمها غير مقبول.";$a("sb-game-image").value="";return;}if(gameImagePreviewObjectUrl)URL.revokeObjectURL(gameImagePreviewObjectUrl);gameImagePreviewObjectUrl=URL.createObjectURL(file);$a("sb-game-image-preview").src=gameImagePreviewObjectUrl;$a("sb-game-image-preview-wrap").hidden=false;});
@@ -704,29 +724,52 @@ drawChips();drawApps();drawThemes();drawMovies();updG();document.querySelectorAl
  async function deleteGame(id){if(!confirm("تأكيد حذف اللعبة؟"))return;try{await requireAdmin();const {error}=await window.sbSupabase.from("games").delete().eq("id",id);if(error)throw error;adminGames=adminGames.filter(g=>String(g.id)!==String(id));renderAdminGames();renderStats();renderPublicGames();$a("sb-game-status-message").textContent="تم حذف اللعبة.";}catch(err){$a("sb-game-status-message").textContent="تعذر الحذف: "+(err.message||"خطأ غير معروف");}}
  $a("sb-game-form").addEventListener("submit",async e=>{e.preventDefault();const status=$a("sb-game-status-message");status.textContent="جارٍ حفظ اللعبة...";try{await requireAdmin();const oldId=$a("sb-game-edit-id").value,id=oldId||newId(),file=$a("sb-game-image").files?.[0];let imageUrl=currentGameImageUrl;if(file){if(!["image/jpeg","image/png","image/webp","image/gif"].includes(file.type)||file.size>5*1024*1024)throw new Error("صيغة الصورة أو حجمها غير مقبول.");const ext={"image/jpeg":"jpg","image/png":"png","image/webp":"webp","image/gif":"gif"}[file.type],path="games/"+id+"/"+Date.now()+"."+ext;const {error:uploadError}=await window.sbSupabase.storage.from("app-images").upload(path,file,{cacheControl:"31536000",contentType:file.type,upsert:true});if(uploadError)throw new Error("فشل رفع الصورة: "+uploadError.message);imageUrl=window.sbSupabase.storage.from("app-images").getPublicUrl(path).data.publicUrl;}const row={id,name:$a("sb-game-name").value.trim(),description:$a("sb-game-description").value.trim()||null,category:$a("sb-game-category").value.trim()||null,platform:$a("sb-game-platform").value.trim()||null,official_url:$a("sb-game-url").value.trim()||null,image_url:imageUrl||null,status:$a("sb-game-status").value};if(!row.name)throw new Error("اسم اللعبة مطلوب.");if(row.official_url&&!/^https?:\/\//i.test(row.official_url))throw new Error("الرابط الرسمي يجب أن يبدأ بـ http:// أو https://");const {error}=await window.sbSupabase.from("games").upsert(row,{onConflict:"id"});if(error)throw error;resetGameForm();await loadAdminGames();renderAdminGames();renderPublicGames();status.style.color="#70d89a";status.textContent="تم حفظ اللعبة في Supabase.";}catch(err){status.style.color="#ff747b";status.textContent="لم يتم الحفظ: "+(err.message||"تحقق من الاتصال والصلاحيات");}});
  $a("sb-game-cancel").addEventListener("click",resetGameForm);
- let statsRange=7;
+ let statsRange=7,reportRows=[];
+ $a("sb-p7-game-search").addEventListener("input",renderAdminGames);
+ $a("sb-p7-game-filter").addEventListener("change",renderAdminGames);
  function renderStats(){
-  const items=readItems(), byId=new Map(items.map(x=>[String(x.id),x.n])), grouped={};
+  const since=new Date();since.setHours(0,0,0,0);since.setDate(since.getDate()-statsRange+1);
+  const periodEvents=cloudEvents.filter(e=>new Date(e.created_at)>=since);
+  const items=readItems(), byId=new Map(items.map(x=>[String(x.id),x.n])), grouped=Object.create(null);
   adminGames.forEach(x=>byId.set(String(x.id),x.name));
-  cloudEvents.forEach(e=>{const id=String(e.item_key||"site");if(!grouped[id])grouped[id]={views:0,downs:0};if(e.event_type==="view")grouped[id].views++;if(e.event_type==="download")grouped[id].downs++;});
+  periodEvents.forEach(e=>{const id=String(e.item_key||"site");if(!grouped[id])grouped[id]={views:0,downs:0};if(e.event_type==="view")grouped[id].views++;if(e.event_type==="download")grouped[id].downs++;});
   const rows=Object.entries(grouped).map(([id,v])=>({id,name:byId.get(id)||id,views:v.views,downs:v.downs,total:v.views+v.downs})).filter(x=>x.total>0).sort((a,b)=>b.total-a.total);
+  reportRows=rows;
+  if(cloudLoadedAt&&!$a("sb-p7-csv").disabled){const incomplete=cloudCount===null||cloudCount>cloudEvents.length; $a("sb-p7-scope").textContent="آخر تحميل: "+cloudLoadedAt.toLocaleString("ar-SA")+" | "+fmtN(periodEvents.length)+" حدث خلال "+statsRange+" أيام"+(incomplete?" | النتائج قد تكون جزئية (أحدث "+fmtN(cloudEvents.length)+" حدث محمّل).":" | جميع الأحداث المتاحة عند التحميل.");}
   const topHost=$a("sb-top-items");
   topHost.innerHTML=rows.length?'<div class="sb-top-list">'+rows.slice(0,5).map((x,i)=>'<div class="sb-top-item"><span class="sb-top-rank">'+(i+1)+'</span><div><div class="sb-top-name">'+esc(x.name)+'</div><div class="sb-top-meta">'+fmtN(x.views)+' مشاهدة · '+fmtN(x.downs)+' نقرة</div></div><strong class="sb-top-total">'+fmtN(x.total)+'</strong></div>').join("")+'</div>':'<div class="sb-empty">لا توجد تفاعلات كافية لعرض ترتيب العناصر بعد.</div>';
   $a("sb-stats-table").innerHTML=`<table><thead><tr><th>العنصر</th><th>مشاهدات التفاصيل</th><th>نقرات الروابط</th></tr></thead><tbody>${rows.slice(0,100).map(x=>`<tr><td>${esc(x.name)}</td><td>${fmtN(x.views)}</td><td>${fmtN(x.downs)}</td></tr>`).join("")}</tbody></table>`;
-  const totals=cloudTotals();
+  const totals=cloudTotals(periodEvents);
   $a("sb-analytics-visits").textContent=fmtN(totals.visits);
   $a("sb-analytics-views").textContent=fmtN(totals.views);
   $a("sb-analytics-clicks").textContent=fmtN(totals.downloads);
   const today=new Date();today.setHours(0,0,0,0);
   const days=Array.from({length:statsRange},(_,i)=>{const d=new Date(today);d.setDate(today.getDate()-statsRange+1+i);return {date:d,count:0};});
   const dayMap=new Map(days.map(d=>[d.date.toDateString(),d]));
-  cloudEvents.forEach(e=>{const d=new Date(e.created_at);if(Number.isNaN(d.getTime()))return;d.setHours(0,0,0,0);const slot=dayMap.get(d.toDateString());if(slot)slot.count++;});
+  periodEvents.forEach(e=>{const d=new Date(e.created_at);if(Number.isNaN(d.getTime()))return;d.setHours(0,0,0,0);const slot=dayMap.get(d.toDateString());if(slot)slot.count++;});
   const max=Math.max(1,...days.map(d=>d.count));
   $a("sb-activity-chart").innerHTML=days.map(d=>{const h=d.count?Math.max(5,Math.round(d.count/max*100)):2;const label=statsRange===7?d.date.toLocaleDateString("ar-SA",{weekday:"short"}):d.date.toLocaleDateString("ar-SA",{day:"numeric",month:"numeric"});return `<div class="sb-chart-day" title="${d.date.toLocaleDateString("ar-SA")}: ${fmtN(d.count)} حدث"><span class="sb-chart-value">${fmtN(d.count)}</span><div class="sb-chart-bar" style="height:${h}%"></div><span class="sb-chart-label">${label}</span></div>`;}).join("");
   document.querySelectorAll("[data-stats-range]").forEach(b=>b.classList.toggle("active",Number(b.dataset.statsRange)===statsRange));
  }
  function refresh(){renderContent();Promise.all([loadCloudEvents(),loadAdminGames()]).then(()=>{renderOverview();renderStats();renderAdminGames()}).catch(err=>{$a("sb-recent").textContent="تعذر تحميل بيانات الإدارة: "+(err.message||"تحقق من الصلاحيات");$a("sb-stats-table").textContent="تعذر تحميل الإحصائيات السحابية."})}
  document.querySelectorAll("[data-stats-range]").forEach(b=>b.addEventListener("click",()=>{statsRange=Number(b.dataset.statsRange)===30?30:7;renderStats()}));
+ $a("sb-p7-refresh").addEventListener("click",async()=>{
+  const b=$a("sb-p7-refresh");b.disabled=true;
+  try{await loadCloudEvents();renderOverview();renderStats();}
+  catch(err){$a("sb-p7-scope").textContent="تعذر التحديث؛ الأرقام السابقة قديمة.";}
+  finally{b.disabled=false;}
+ });
+ $a("sb-p7-csv").addEventListener("click",async()=>{
+  try{
+   await requireAdmin();
+   if(!cloudLoadedAt||$a("sb-p7-csv").disabled)return;
+   const cell=value=>{let v=String(value??"");if(/^[\s]*[=+@\-\t\r\n]/.test(v))v="'"+v;return '"'+v.replace(/"/g,'""')+'"';};
+   const meta=["الفترة بالأيام",statsRange,"وقت التحميل",cloudLoadedAt.toISOString(),"الأحداث المحملة",cloudEvents.length,"إجمالي الأحداث المتاحة",cloudCount??"غير معروف"];
+   const csv=[meta,["العنصر","مشاهدات التفاصيل","نقرات الروابط"],...reportRows.map(x=>[x.name,x.views,x.downs])].map(row=>row.map(cell).join(",")).join("\r\n");
+   const url=URL.createObjectURL(new Blob(["\uFEFF",csv],{type:"text/csv;charset=utf-8"}));
+   const a=document.createElement("a");a.href=url;a.download="saudi-byte-analytics-"+statsRange+"d.csv";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  }catch(err){$a("sb-p7-scope").textContent="تعذر تصدير التقرير؛ تحقق من جلسة المدير.";}
+ });
  let currentImageUrl=null,imagePreviewObjectUrl=null;
  function showImagePreview(src){const wrap=$a("sb-image-preview-wrap"),img=$a("sb-image-preview");img.src=src;wrap.hidden=false;}
  function clearImagePreview(){if(imagePreviewObjectUrl){URL.revokeObjectURL(imagePreviewObjectUrl);imagePreviewObjectUrl=null;}$a("sb-image-preview").removeAttribute("src");$a("sb-image-preview-wrap").hidden=true;$a("sb-image-file").value="";}
