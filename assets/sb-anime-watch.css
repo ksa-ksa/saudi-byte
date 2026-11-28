@@ -1,1 +1,31 @@
 .sb-anime-watch{margin:18px 0 24px;padding:14px;background:#100b0d;border:1px solid #63212b;border-radius:14px;min-width:0}.sb-anime-watch .section-head{margin:0 0 12px}.sb-anime-watch .note{line-height:1.7;color:#bbb;font-size:12px;margin:10px 0}.sb-aw-controls{display:grid;grid-template-columns:minmax(0,2fr) repeat(2,minmax(0,1fr));gap:8px;margin-bottom:12px}.sb-aw-controls input,.sb-aw-controls select{min-width:0;width:100%;padding:10px;color:white;background:#191517;border:1px solid #633139;border-radius:8px;font:inherit;font-size:13px}.sb-aw-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:10px}.sb-aw-card{min-width:0;display:flex;flex-direction:column;gap:7px;border:1px solid #50232a;border-radius:10px;padding:10px;background:#171113}.sb-aw-art{aspect-ratio:16/9;border-radius:7px;overflow:hidden;background:radial-gradient(ellipse at center,#620d19,#18090b 65%);display:grid;place-items:center}.sb-aw-art span{font-size:32px;color:#ff4856}.sb-aw-art img{width:100%;height:100%;object-fit:cover}.sb-aw-card h3{font-size:14px;overflow-wrap:anywhere}.sb-aw-card small{color:#ddd;font-size:11px}.sb-aw-card p{color:#bbb;font-size:11px;line-height:1.5;margin-bottom:4px}.sb-aw-card .btn{margin-top:auto;min-height:44px}#sb-aw-player-box{scroll-margin-top:84px;margin:12px 0;border:1px solid #72242e;padding:10px;border-radius:12px}#sb-aw-player-box[hidden],#sb-aw-empty[hidden]{display:none!important}.sb-aw-player-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}.sb-aw-frame{aspect-ratio:16/9;background:#000;position:relative;overflow:hidden}.sb-aw-frame iframe{width:100%;height:100%;border:0;position:absolute;inset:0}#sb-aw-source{color:#ff9ba3;text-decoration:underline;font-size:12px}@media(max-width:600px){.sb-aw-controls{grid-template-columns:repeat(2,minmax(0,1fr))}.sb-aw-controls input{grid-column:1/-1}.sb-aw-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.sb-anime-watch{padding:9px}.sb-aw-card{padding:7px}.sb-aw-card h3{font-size:12px}.sb-aw-card .btn{font-size:11px;padding:7px 4px}}
+/* Anime tabs and poster library */
+#sb-anime-watch[hidden],#sb-anime-news[hidden],.sb-aw-cover-fallback[hidden]{display:none!important}
+.sb-aw-tabs{display:flex;gap:8px;margin:15px 0 12px;padding:5px;border:1px solid #53232a;background:#100b0d;border-radius:12px}
+.sb-aw-tabs button{flex:1;min-width:0;border:1px solid transparent;border-radius:8px;color:#ddd;background:transparent;padding:12px 8px;font:inherit;font-weight:700;cursor:pointer}
+.sb-aw-tabs button[aria-selected=true]{background:linear-gradient(180deg,#c50918,#750815);border-color:#f13242;color:#fff;box-shadow:0 0 12px #d5092025}
+.sb-aw-tabs button:focus-visible{outline:2px solid #ff8b91;outline-offset:2px}
+.sb-anime-watch{margin-top:0}
+.sb-aw-grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,150px),1fr));gap:12px}
+.sb-aw-card{padding:8px}
+.sb-aw-art{position:relative;aspect-ratio:2/3;display:block;background:#1b0b10;overflow:hidden}
+.sb-aw-art img{position:absolute;inset:0;object-fit:cover;width:100%;height:100%;opacity:0}
+.sb-aw-art img.loaded{opacity:1}
+.sb-aw-cover-fallback{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:9px;padding:8px;background:radial-gradient(ellipse at 50% 25%,#781220,#17080c 70%);color:white;overflow-wrap:anywhere}
+.sb-aw-cover-fallback strong{font-size:15px;line-height:1.35}.sb-aw-cover-fallback small{color:#d2a8ad;font-size:10px}
+.sb-aw-card h3{font-size:14px;line-height:1.45}.sb-aw-card .btn{font-size:12px;white-space:normal}
+#anime .sa-anime-hero{min-height:285px;isolation:isolate;position:relative;background:linear-gradient(90deg,#1a0509,#080708 80%);padding:32px 34px;overflow:hidden}
+#anime .sa-anime-copy{z-index:3;max-width:61%;text-shadow:0 2px 7px #000}
+#anime .sa-anime-art.sb-solo-art{position:absolute;inset:0 auto 0 0;width:65%;height:100%;display:block;border:0;border-radius:0;transform:none;box-shadow:none;overflow:hidden;z-index:0}
+#anime .sb-solo-art:before{content:none}
+#anime .sb-solo-art:after{content:"";position:absolute;inset:0;border:0;border-radius:0;opacity:1;background:linear-gradient(90deg,#17000615 10%,#0d080a24 30%,#080708 94%),linear-gradient(0deg,#090607dd,transparent 42%);z-index:2}
+#anime .sb-solo-art img{width:100%;height:100%;object-fit:cover;object-position:40% 48%;filter:grayscale(1) contrast(1.14) brightness(.85)}
+#anime .sb-solo-art{background:#b00017}
+#anime .sb-solo-art img{mix-blend-mode:luminosity;opacity:.87}
+#anime .sb-solo-label{position:absolute;z-index:3;bottom:21px;left:25px;display:grid;gap:5px;text-align:left;direction:ltr;text-shadow:0 2px 9px #000}
+#anime .sb-solo-label strong{font-size:clamp(19px,3.2vw,38px);font-weight:900;letter-spacing:1px;color:#f9eeee}
+#anime .sb-solo-label small{font-size:9px;letter-spacing:2px;color:#ff6b79}
+html[lang=en] #anime .sa-anime-art.sb-solo-art{left:auto;right:0}
+html[lang=en] #anime .sb-solo-art:after{background:linear-gradient(270deg,#17000615 10%,#0d080a24 30%,#080708 94%),linear-gradient(0deg,#090607dd,transparent 42%)}
+html[lang=en] #anime .sb-solo-label{left:auto;right:25px}
+@media(max-width:600px){#anime .sa-anime-hero{min-height:245px;padding:18px 14px;align-items:flex-start}#anime .sa-anime-copy{max-width:65%}#anime .sa-anime-copy h1{font-size:clamp(19px,5.1vw,27px);margin:10px 0}#anime .sa-anime-copy p{font-size:11px}#anime .sa-anime-stats{gap:8px;margin-top:12px}#anime .sa-anime-stats b{font-size:13px}#anime .sa-anime-stats small{font-size:8px}#anime .sa-anime-art.sb-solo-art{width:75%}#anime .sb-solo-label{left:12px;bottom:12px}#anime .sb-solo-label strong{font-size:15px}#anime .sb-solo-label small{font-size:7px;letter-spacing:1px}.sb-aw-tabs button{font-size:12px;padding:10px 4px}.sb-aw-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.sb-aw-card{padding:6px}.sb-aw-card h3{font-size:12px}}
