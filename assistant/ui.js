@@ -20,9 +20,10 @@ function stop() {
   byId("send").disabled = false;
   ready = false;
 }
-function failed() {
+function failed(detail) {
   stop();
-  statusText("تعذّر تشغيل النموذج. جرّب اتصالًا ثابتًا أو جهازًا بذاكرة أكبر. تقدر تسأل الدليل السريع أدناه.", "Could not run the model. Try a stable connection or a device with more memory. You can still ask the quick guide below.");
+  statusText("تعذّر تشغيل النموذج. تقدر تعيد المحاولة لاحقًا. تقدر تسأل الدليل السريع أدناه.", "Could not run the model. Try again later. You can still ask the quick guide below.");
+  if (typeof detail === "string") byId("status").textContent += " (" + detail.slice(0,240) + ")";
 }
 let policy;
 byId("start").onclick = () => {
@@ -38,9 +39,9 @@ byId("start").onclick = () => {
     byId("start").hidden = true;
     byId("stop").hidden = false;
     statusText("جارٍ تجهيز النموذج…", "Preparing the model…");
-    worker.onerror = failed;
+    worker.onerror = event => failed(event.message);
     worker.onmessage = ({data}) => {
-      if (data.type === "error") return failed();
+      if (data.type === "error") return failed(data.detail);
       if (data.type === "progress") statusText("تنزيل النموذج: " + data.percent + "٪", "Downloading model: " + data.percent + "%");
       if (data.type === "ready") {
         ready = true;
@@ -60,10 +61,27 @@ byId("stop").onclick = () => {
   stop();
   statusText("توقف المساعد.", "Assistant stopped.");
 };
-form.onsubmit = event => {
+form.onsubmit = async event => {
   event.preventDefault();
   const question = byId("question").value.trim();
   if (!question || byId("send").disabled) return;
+  const normalized = question.normalize("NFKC").toLowerCase().replace(/[أإآ]/g,"ا").replace(/[ً-ْ]/g,"");
+  if (/(?:العاب|العبه|games)/.test(normalized) && /(?:الموقع|عندكم|موجود|المتوفر|قائمه|قائمة|اعرض|وشو|ايش|list|available|catalog|on (the |this )?site)/.test(normalized)) {
+    byId("send").disabled = true;
+    byId("answer").textContent = "";
+    statusText("أراجع قسم الألعاب…","Checking the games catalog…");
+    try {
+      const response = await fetch("/api/assistant-games", {signal:AbortSignal.timeout(12000)});
+      if (!response.ok) throw new Error("Catalog unavailable");
+      const games = await response.json();
+      const group = (label, items) => items.length ? label + "\n" + items.map(name => "• " + name).join("\n") : "";
+      byId("answer").textContent = [group(en ? "SAUDI BYTE picks" : "من اختيارات سعودي بايت", games.curated), group(en ? "From the Steam catalog on the site" : "من مكتبة Steam في قسم الألعاب", games.steam)].filter(Boolean).join("\n\n");
+      statusText("أمثلة من كتالوج الموقع الحالي","Examples from the current site catalog");
+    } catch {
+      statusText("تعذّر جلب أسماء الألعاب الآن. جرّب مرة ثانية.","Could not load the catalog. Please try again.");
+    } finally { byId("send").disabled = false; }
+    return;
+  }
   if (!ready) {
     byId("answer").textContent = quickAnswer(question);
     statusText("إجابة من دليل الموقع", "Answer from the site guide");

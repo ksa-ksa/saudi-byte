@@ -1,10 +1,10 @@
-import {env, pipeline} from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.2/dist/transformers.min.js";
-env.allowLocalModels = false;
-env.backends.onnx.wasm.numThreads = 1;
 let generate;
 self.onmessage = async ({data}) => {
   try {
     if (data.type === "load") {
+const {env,pipeline} = await import("https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.2/dist/transformers.min.js");
+env.allowLocalModels = false;
+env.backends.onnx.wasm.numThreads = 1;
       generate = await pipeline("text-generation", "onnx-community/Qwen2.5-0.5B-Instruct", {
         revision: "516c8d04add8a80c5228f32102b57953b8d421a9",
         device: "wasm", dtype: "q8",
@@ -24,5 +24,5 @@ self.onmessage = async ({data}) => {
       if (!answer) throw new Error("Empty answer");
       self.postMessage({type:"answer", answer});
     }
-  } catch { self.postMessage({type:"error"}); }
+  } catch (error) { self.postMessage({type:"error", detail:String(error.message || error)}); }
 };
