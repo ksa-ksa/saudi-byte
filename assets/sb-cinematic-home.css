@@ -337,3 +337,33 @@ body .shell{min-width:0}
  .sb-mobile-feature{justify-content:flex-start}
  .sb-mobile-feature-grid{direction:rtl}
 }
+
+/* Full-width desktop frame and persistent first navigation item. */
+@media(min-width:1025px){
+ :root{--sb-frame:100%;--sb-gutter:0px;--sb-header:64px;--sb-side:clamp(245px,22vw,355px)}
+ body .shell{width:100%;max-width:none!important;margin:0!important}
+ body .topbar{inset:0 0 auto 0!important;width:100%!important;max-width:none!important;height:var(--sb-header)}
+ body .shell>.sidebar{inset:var(--sb-header) 0 0 auto!important;width:var(--sb-side)!important;max-width:none!important;padding:10px 12px!important;overflow-x:hidden!important;overflow-y:hidden!important;background:linear-gradient(165deg,#080607 60%,#200508);border-left:1px solid #421117;border-right:0;direction:rtl}
+ body .sidebar #tabs{position:relative!important;display:flex!important;flex-direction:column;flex:1 1 auto;min-height:0;max-height:100%!important;height:auto!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#602027 #10090a;gap:6px;padding:0 2px 12px 2px!important;scroll-padding-top:50px}
+ body .sidebar #tabs button,body .sidebar #tabs .sb-side-ai{min-height:42px;font-size:clamp(13px,1.05vw,16px);border-radius:9px;padding:5px 9px;gap:8px}
+ body .sidebar #tabs .nav-ico{width:30px;flex:0 0 30px;max-width:30px}
+ body .sidebar #tabs .nav-ico svg{width:28px;height:28px}
+ body .sidebar #tabs button[data-p="home"]{position:sticky;top:0;z-index:5;min-height:44px;background:linear-gradient(180deg,#2e0b10,#12090b);border-color:#f32135;box-shadow:0 3px 6px #000,inset 0 0 10px #e0001730}
+ body .sidebar #tabs button[data-p="home"].active{background:linear-gradient(180deg,#a30615,#4e070d)}
+ body .main{margin:0 var(--sb-side) 0 0!important;max-width:none!important;min-height:100vh;padding-top:var(--sb-header)}
+ body .content{width:100%;max-width:none!important;padding:16px 22px 40px}
+ body:has(#home.show) .content{padding:0 0 12px}
+ body:has(#home.show) #home .hero{margin:0!important}
+ body .page:not(#home)>.sb-home-return{margin-bottom:8px;min-height:38px}
+ body .page:not(#home)>.section-head{margin-top:12px}
+ body .page:not(#home)>.section-head h2{font-size:20px}
+}
+@media(min-width:1025px) and (max-height:900px){
+ body .sidebar #tabs{gap:5px}
+ body .sidebar #tabs button,body .sidebar #tabs .sb-side-ai{min-height:38px;padding-block:4px;font-size:14px}
+ body .sidebar #tabs button[data-p="home"]{min-height:42px}
+ .sb-extra-label{padding:6px 5px 2px}
+}
+@media(max-width:1024px){
+ body .sidebar #tabs button[data-p="home"]{order:-1}
+}
