@@ -65,6 +65,7 @@ form.onsubmit = async event => {
   event.preventDefault();
   const question = byId("question").value.trim();
   if (!question || byId("send").disabled) return;
+  if (window.sbSiteHelp?.(question)) { statusText("",""); return; }
   const normalized = question.normalize("NFKC").toLowerCase().replace(/[أإآ]/g,"ا").replace(/[ً-ْ]/g,"");
   if (/(?:العاب|العبه|games)/.test(normalized) && /(?:الموقع|عندكم|موجود|المتوفر|قائمه|قائمة|اعرض|وشو|ايش|list|available|catalog|on (the |this )?site)/.test(normalized)) {
     byId("send").disabled = true;
