@@ -21,7 +21,11 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; form-action 'self'"
+          "value": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; script-src-elem 'self' https://cdn.jsdelivr.net; form-action 'self'"
+        },
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin-allow-popups"
         }
       ]
     },
@@ -45,6 +49,15 @@
     },
     {
       "source": "/assets/phase81-:file",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400"
+        }
+      ]
+    },
+    {
+      "source": "/assets/turbo82-app.js",
       "headers": [
         {
           "key": "Cache-Control",
