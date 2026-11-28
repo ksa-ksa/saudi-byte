@@ -84,3 +84,10 @@ body .sidebar #tabs button{font-size:15px;min-height:49px}
 body .content{padding:20px 14px 40px}
 }
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important}}
+
+body .sidebar #tabs .sb-side-ai{display:flex;align-items:center;gap:13px;min-height:49px;border:1px solid #96101b;border-radius:13px;padding:8px 12px;background:linear-gradient(180deg,#2b070b,#10090a 75%);font-size:clamp(13px,1.3vw,19px);font-weight:700;color:#f8f4f4;box-shadow:inset 0 0 12px #e5001425}
+body .sidebar #tabs .sb-side-ai:after{content:"‹";margin-inline-start:auto;color:#ffb4b8;font-size:28px}
+body .sidebar #tabs .sb-side-ai:hover{border-color:#ff3948}
+body .sidebar #tabs .sb-side-ai:focus-visible,body .sidebar #tabs button:focus-visible,.sb-new-brand:focus-visible,.sb-head-ai:focus-visible{outline:2px solid #ff939b;outline-offset:2px}
+.sb-search-results[hidden],.sb-header-notice[hidden]{display:none!important}
+@media(max-width:1024px),(any-pointer:coarse){body .sidebar #tabs .sb-side-ai{font-size:15px;flex-shrink:0}}
