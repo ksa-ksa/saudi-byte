@@ -52,6 +52,7 @@
     site.querySelector('[data-p="'+tab+'"]')?.click();
     if (dest.startsWith("sb-")) {
       window.sbChooseLabTool?.(dest);
+      if (dest==="sb-compat" && params.get("check")==="windows") document.getElementById("sb-windows-check").open=true;
       document.getElementById(dest)?.scrollIntoView();
       if (dest === "sb-compat" && params.get("game")) {
         const field = document.getElementById("g-name");
@@ -87,6 +88,11 @@
     if (preset) pendingGame = false;
     actions.replaceChildren();
     const n = normalize(q), hits = match(q);
+    if (/فيروس|خبيث|تعريفات|تحديث البرامج|فحص ويندوز|malware|antivirus|drivers|software updates/.test(n)) {
+      const a=document.createElement("a"); a.href="/?section=sb-compat&check=windows"; a.target="_blank"; a.rel="noopener";
+      a.textContent=en?"Open Windows checks":"افتح فاحص ويندوز"; actions.append(a);
+      answer.textContent=en?"Choose the local checks you want on Windows.":"اختر الفحوصات التي توافق عليها في أداة ويندوز المحلية."; return true;
+    }
     const explicit = /^(?:لو سمحت |ممكن |تكفى )?(?:افتح|ودني|وديني|خذني|نقلني|روح|انتقل|open\b|go to\b|take me\b)/.test(n);
     const localized = (ar,english) => en ? english : ar;
     if (hits.includes(compat) || pendingGame && !explicit && !hits.length) {
