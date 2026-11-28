@@ -43,6 +43,7 @@
         a.textContent = document.documentElement.lang === "en" ? a.dataset.en : a.dataset.ar;
         (page.querySelector(".sb-sections-return") || page.firstElementChild)?.after(a);
       }
+      a.target = "_blank"; a.rel = "noopener";
       a.href = "/assistant/?from=" + encodeURIComponent(page.id);
     }
     const dest = params.get("section");
@@ -72,8 +73,13 @@
     return "/?"+p;
   }
   function link(item,title) {
-    const a = document.createElement("a"); a.href = url(item,title);
-    a.textContent = (en?"Open ":"افتح ")+item[en?2:1]; actions.append(a);
+    const a = document.createElement("a"); a.href = url(item,title); a.target = "_blank"; a.rel = "noopener";
+    a.textContent = (en?"Open ":"افتح ")+item[en?2:1]; actions.append(a); return a;
+  }
+  function openSection(item,title) {
+    const a = link(item,title);
+    answer.textContent = en ? "The section opens in another tab. You can use this link again:" : "القسم يفتح في تبويب مستقل. تقدر ترجع لسؤالك هنا أو تفتح القسم من الرابط:";
+    a.click();
   }
   let pendingGame = false;
   const compat = sections.find(s=>s[0]==="sb-compat");
@@ -86,14 +92,14 @@
       const title = (q.match(/["«“]([^"»”]+)["»”]/)?.[1] || q.match(/\b[A-Za-z][A-Za-z0-9: '’-]*(?:\s+\d+)?/)?.[0] || "").replace(/^(?:can (?:i|my pc) run|requirements for|check)\s+/i,"").replace(/\s+(?:requirements|run on my.*)$/i,"").trim();
       const game = pendingGame && !hits.length ? q : title;
       pendingGame = !game;
-      if (explicit) { location.assign(url(compat,game)); return true; }
+      if (explicit) { openSection(compat,game); return true; }
       answer.textContent = localized("افتح فحص التوافق لمقارنة ألعاب من المكتبة بجهازك. لفحص لعبة معيّنة، "+(game?"اختر النسخة المطابقة من نتائج Steam.":"اكتب اسمها هنا."),"Open compatibility to compare games with your PC. "+(game?"Select the matching Steam title.":"For a specific game, type its title here."));
       link(compat,game); return true;
     }
     pendingGame = false;
     const catalog = /(?:العاب|games)/.test(n) && /(?:الموقع|عندكم|موجود|المتوفر|قائمه|وشو|ايش|list|available|catalog)/.test(n);
     if (!explicit && catalog && hits[0]?.[0]==="games") {link(hits[0]);return false;}
-    if (explicit && hits.length) { location.assign(url(hits[0])); return true; }
+    if (explicit && hits.length) { openSection(hits[0]); return true; }
     const all = /(?:اقسام الموقع|كل الاقسام|جميع الاقسام|site sections|all sections)/.test(n);
     const choices = all ? sections.filter(s=>!s[0].startsWith("sb-")) : hits.length ? hits.slice(0,2) : from && /(?:هنا|القسم|this section|here)/.test(n) ? [from] : [];
     for (const item of choices) link(item);
