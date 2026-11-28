@@ -46,7 +46,7 @@ byId("start").onclick = () => {
       if (data.type === "ready") {
         ready = true;
         statusText("جاهز لسؤالك.", "Ready for your question.");
-        byId("question").focus();
+        showComposer();
       }
       if (data.type === "answer") {
         byId("answer").textContent = data.answer;
@@ -61,11 +61,34 @@ byId("stop").onclick = () => {
   stop();
   statusText("توقف المساعد.", "Assistant stopped.");
 };
-form.onsubmit = async event => {
+const presets = Array.from(document.querySelectorAll("[data-preset]"));
+function selectPreset(selected) {
+  presets.forEach(button => button.setAttribute("aria-pressed", String(button === selected)));
+}
+function showComposer() {
+  form.hidden = false;
+  byId("write").setAttribute("aria-expanded", "true");
+  byId("question").focus();
+}
+byId("write").onclick = () => { selectPreset(null); showComposer(); };
+for (const button of presets) {
+  button.onclick = () => {
+    if (byId("send").disabled) return;
+    selectPreset(button);
+    ask(button.textContent.trim(), true);
+  };
+}
+new MutationObserver(() => {
+  presets.forEach(button => button.disabled = byId("send").disabled);
+}).observe(byId("send"), {attributes:true, attributeFilter:["disabled"]});
+form.onsubmit = event => {
   event.preventDefault();
-  const question = byId("question").value.trim();
+  selectPreset(null);
+  ask(byId("question").value.trim());
+};
+async function ask(question, preset = false) {
   if (!question || byId("send").disabled) return;
-  if (window.sbSiteHelp?.(question)) { statusText("",""); return; }
+  if (window.sbSiteHelp?.(question, preset)) { statusText("",""); return; }
   const normalized = question.normalize("NFKC").toLowerCase().replace(/[أإآ]/g,"ا").replace(/[ً-ْ]/g,"");
   if (/(?:العاب|العبه|games)/.test(normalized) && /(?:الموقع|عندكم|موجود|المتوفر|قائمه|قائمة|اعرض|وشو|ايش|list|available|catalog|on (the |this )?site)/.test(normalized)) {
     byId("send").disabled = true;

@@ -83,14 +83,15 @@
   }
   let pendingGame = false;
   const compat = sections.find(s=>s[0]==="sb-compat");
-  window.sbSiteHelp = q => {
+  window.sbSiteHelp = (q, preset = false) => {
+    if (preset) pendingGame = false;
     actions.replaceChildren();
     const n = normalize(q), hits = match(q);
     const explicit = /^(?:لو سمحت |ممكن |تكفى )?(?:افتح|ودني|وديني|خذني|نقلني|روح|انتقل|open\b|go to\b|take me\b)/.test(n);
     const localized = (ar,english) => en ? english : ar;
     if (hits.includes(compat) || pendingGame && !explicit && !hits.length) {
       const title = (q.match(/["«“]([^"»”]+)["»”]/)?.[1] || q.match(/\b[A-Za-z][A-Za-z0-9: '’-]*(?:\s+\d+)?/)?.[0] || "").replace(/^(?:can (?:i|my pc) run|requirements for|check)\s+/i,"").replace(/\s+(?:requirements|run on my.*)$/i,"").trim();
-      const game = pendingGame && !hits.length ? q : title;
+      const game = /^(?:Which games are compatible with my PC\?)$/i.test(q) ? "" : pendingGame && !hits.length ? q : title;
       pendingGame = !game;
       if (explicit) { openSection(compat,game); return true; }
       answer.textContent = localized("افتح فحص التوافق لمقارنة ألعاب من المكتبة بجهازك. لفحص لعبة معيّنة، "+(game?"اختر النسخة المطابقة من نتائج Steam.":"اكتب اسمها هنا."),"Open compatibility to compare games with your PC. "+(game?"Select the matching Steam title.":"For a specific game, type its title here."));
